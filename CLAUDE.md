@@ -3,15 +3,18 @@
 簡易版。後ほどブラッシュアップ予定。
 
 ## このリポジトリについて
+
 - [IELTS Creator](https://github.com/h-fujiwara-dev/ielts-creater) のフロントエンド
 - Next.js（App Router）+ TypeScript
 - プロジェクト全体の要件・アーキテクチャは[ielts-createrリポジトリ](https://github.com/h-fujiwara-dev/ielts-creater)を参照
 
 ## 言語ポリシー
+
 - 日本企業向けポートフォリオとして公開するため、**ドキュメント・コメント・コミットメッセージは日本語**で記載する
 - コード上の識別子（変数名・関数名・コンポーネント名・ファイル名等）は英語のまま実装する
 
 ## コミットメッセージ規則
+
 - 書式: `[#チケット番号] type: 概要（日本語）`（例: `[#00001] feat: リポジトリ新規構築`）
 - チケット番号は5桁ゼロ埋め。typeはConventional Commits準拠（feat/fix/docs/style/refactor/test/chore/perf/build/ci/revert）
 - ielts-creater / -frontend / -backend / -infra の4リポジトリ共通のルール
@@ -19,5 +22,6 @@
 - チケット番号は[ielts-createrリポジトリ tickets/](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/)で採番・管理する
 
 ## ドキュメント
+
 - [docs/画面一覧.md](./docs/画面一覧.md) — 画面一覧・ディレクトリ構成
 - [docs/画面設計書/](./docs/画面設計書/) — 画面ごとの詳細仕様（S-01〜S-06、S-01に認証連携を含む）
