@@ -2,13 +2,13 @@ import { Sparkles } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { BlurText } from "@/components/reactbits/blur-text";
-import { DotGrid } from "@/components/reactbits/dot-grid";
+import { DotField } from "@/components/reactbits/dot-field";
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-70">
-        <DotGrid />
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <DotField />
       </div>
 
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:grid-cols-2 md:py-24">
