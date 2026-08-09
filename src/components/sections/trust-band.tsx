@@ -1,5 +1,6 @@
 import { BarChart3, CheckCheck, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { SpotlightCard } from "@/components/reactbits/spotlight-card";
 import { highlights, questionFormats } from "@/lib/mock-data";
 
 const icons = [Sparkles, CheckCheck, BarChart3];
@@ -16,18 +17,23 @@ export function TrustBand() {
           {highlights.map((h, i) => {
             const Icon = icons[i];
             return (
-              <Card
+              <SpotlightCard
                 key={h.label}
-                className="border-none bg-white shadow-sm transition-shadow duration-200 hover:shadow-lg"
+                className="rounded-xl"
+                spotlightColor="rgba(249, 115, 22, 0.12)"
               >
-                <CardContent className="p-5">
-                  <Icon className="size-5 text-brand-orange" />
-                  <p className="mt-3 text-sm text-brand-navy/80">{h.description}</p>
-                  <p className="mt-3 text-sm font-semibold text-brand-navy">
-                    {h.label}
-                  </p>
-                </CardContent>
-              </Card>
+                <Card className="border-none bg-white shadow-sm transition-shadow duration-200 hover:shadow-lg">
+                  <CardContent className="p-5">
+                    <Icon className="size-5 text-brand-orange" />
+                    <p className="mt-3 text-sm text-brand-navy/80">
+                      {h.description}
+                    </p>
+                    <p className="mt-3 text-sm font-semibold text-brand-navy">
+                      {h.label}
+                    </p>
+                  </CardContent>
+                </Card>
+              </SpotlightCard>
             );
           })}
         </div>
