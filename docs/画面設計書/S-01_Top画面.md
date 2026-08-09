@@ -1,7 +1,7 @@
 # S-01 Top画面
 
 - 更新日: 2026-08-09
-- 関連文書: [画面一覧](../画面一覧.md) / [画面遷移図（ielts-createrリポジトリ）](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/docs/画面遷移図.md) / [ielts-createrリポジトリ tickets/00005 TOP画面のFigmaデザイン作成](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00005_TOP画面のFigmaデザイン作成.md)
+- 関連文書: [画面一覧](../画面一覧.md) / [画面遷移図（ielts-createrリポジトリ）](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/docs/画面遷移図.md) / [ielts-createrリポジトリ tickets/00005 TOP画面のFigmaデザイン作成](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00005_TOP画面のFigmaデザイン作成.md) / [S-08 プライバシーポリシー画面](./S-08_プライバシーポリシー画面.md) / [S-09 利用規約画面](./S-09_利用規約画面.md)
 
 ## 画面概要
 
@@ -17,7 +17,7 @@
 | ヒーローセクション | キャッチコピー、サービスの一言説明、主要CTA（「はじめる」等でS-02へ） |
 | 機能紹介セクション | Reading/Listening自動生成、自動採点・解説、学習ダッシュボードなど主要機能の紹介 |
 | ベネフィット訴求セクション | 「解いた分だけ新しい問題が手に入る」という価値提案の訴求 |
-| フッター | 補足リンク（利用規約・お問い合わせ等。Phase 1時点ではダミーで可） |
+| フッター | プライバシーポリシー（S-08）・利用規約（S-09）へのリンク。お問い合わせ導線は連絡先未定のため引き続きダミー |
 
 具体的なセクション構成・情報設計は#00005で検討し、確定した内容をここに反映する。
 
@@ -41,3 +41,4 @@
 
 - ルーティングは`app/page.tsx`（ルート直下）を想定する
 - ビジュアルデザイン確定後の追記は#00005の受け入れ条件に従う
+- フッターのプライバシーポリシー・利用規約リンクは[#00008](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00008_プライバシーポリシー利用規約画面の追加.md)で機能仕様・本文案を確定した（[S-08](./S-08_プライバシーポリシー画面.md) / [S-09](./S-09_利用規約画面.md)）。実際のページ実装は別途対応する
