@@ -1,9 +1,19 @@
 import { Button } from "@/components/ui/button";
+import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 
 export function CtaBand() {
   return (
-    <section className="bg-brand-blue py-16 text-center">
-      <div className="mx-auto max-w-2xl px-6">
+    <section className="relative overflow-hidden bg-brand-blue py-16 text-center">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-brand-orange/30 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 -bottom-24 size-72 rounded-full bg-brand-cream/20 blur-3xl"
+      />
+
+      <RevealOnScroll className="relative z-10 mx-auto max-w-2xl px-6">
         <h2 className="text-2xl font-bold text-white md:text-3xl">
           今すぐ無料でIELTS対策を始めよう
         </h2>
@@ -25,7 +35,7 @@ export function CtaBand() {
             ログイン
           </Button>
         </div>
-      </div>
+      </RevealOnScroll>
     </section>
   );
 }
