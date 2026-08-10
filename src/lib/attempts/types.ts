@@ -1,4 +1,4 @@
-import type { AttemptStatus } from "@/lib/api/enums";
+import type { AttemptStatus, Difficulty, Section } from "@/lib/api/enums";
 
 // POST /api/v1/attempts のリクエスト/レスポンス型
 // (backendリポジトリ docs/API設計書/POST_attempts.md)
@@ -46,4 +46,38 @@ export interface AttemptResult {
   rawScore: number;
   maxScore: number;
   answers: AttemptAnswerResult[];
+}
+
+// S-05結果画面のスコアサマリー表示に必要だが、AttemptResult型（バックエンドの
+// submit/GET attempts/{id}レスポンス）には含まれない付随情報。型定義自体は
+// バックエンド仕様に忠実に保つため、モック専用の補助データとして別型にしている。
+export interface AttemptMockMeta {
+  section: Section;
+  topic: string;
+  difficulty: Difficulty;
+  submittedAt: string;
+  durationMinutes: number;
+}
+
+// GET /api/v1/attempts のクエリ・レスポンス型（受験履歴一覧、ページング・絞り込み）
+// (backendリポジトリ docs/API設計書/GET_attempts.md)
+export interface AttemptListItem {
+  attemptId: string;
+  questionSetId: string;
+  section: Section;
+  submittedAt: string;
+  rawScore: number;
+  maxScore: number;
+}
+
+export interface AttemptListQuery {
+  section?: Section;
+  page?: number;
+  size?: number;
+}
+
+export interface AttemptListResponse {
+  items: AttemptListItem[];
+  page: number;
+  totalPages: number;
 }
