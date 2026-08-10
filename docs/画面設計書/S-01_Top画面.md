@@ -77,6 +77,5 @@
 
 - ルーティングは`app/page.tsx`（ルート直下）を想定する
 - UIコンポーネントは shadcn/ui（Base UIプリセット）+ Tailwind CSSを想定。ボタン等クリック可能要素には`cursor-pointer`を明示し、ホバーは`scale`変形を避けて色・シャドウ変化＋150–250msの`transition`で統一する（`prefers-reduced-motion`を尊重）
-- ヒーロー・ストーリーの写真は本番実装時にUnsplash APIキーを別途払い出し、`next/image`の`sizes`指定・クレジット表記を含めて実装する
 - 検証用プロトタイプ一式（`landing-clone`）は本チケット内の一時的な確認用実装であり、そのままこのリポジトリには取り込まない。本ファイルの内容・スクリーンショットを一次情報として実装する
 - フッターのプライバシーポリシー・利用規約リンクは[#00008](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00008_プライバシーポリシー利用規約画面の追加.md)で機能仕様・本文案を確定した（[S-08](./S-08_プライバシーポリシー画面.md) / [S-09](./S-09_利用規約画面.md)）。実際のページ実装は別途対応する
