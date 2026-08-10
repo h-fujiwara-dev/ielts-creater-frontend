@@ -72,6 +72,12 @@ const QUESTION_IDS_BY_QUESTION_SET: Record<string, string[]> = {
 };
 
 export function questionSetIdFromAttemptId(attemptId: string): string {
+  // 履歴一覧のフィクスチャ（HISTORY_FIXTURE）はattemptIdとquestionSetIdが独立した
+  // 値のため、まず履歴フィクスチャ側の対応を優先して調べる。それ以外（#00021の
+  // ライブ受験フロー）は`att-${questionSetId}`の命名規則からquestionSetIdを導出する。
+  const historyItem = HISTORY_FIXTURE.find((item) => item.attemptId === attemptId);
+  if (historyItem) return historyItem.questionSetId;
+
   return attemptId.replace(/^att-/, "");
 }
 
