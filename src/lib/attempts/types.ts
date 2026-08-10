@@ -58,3 +58,26 @@ export interface AttemptMockMeta {
   submittedAt: string;
   durationMinutes: number;
 }
+
+// GET /api/v1/attempts のクエリ・レスポンス型（受験履歴一覧、ページング・絞り込み）
+// (backendリポジトリ docs/API設計書/GET_attempts.md)
+export interface AttemptListItem {
+  attemptId: string;
+  questionSetId: string;
+  section: Section;
+  submittedAt: string;
+  rawScore: number;
+  maxScore: number;
+}
+
+export interface AttemptListQuery {
+  section?: Section;
+  page?: number;
+  size?: number;
+}
+
+export interface AttemptListResponse {
+  items: AttemptListItem[];
+  page: number;
+  totalPages: number;
+}
