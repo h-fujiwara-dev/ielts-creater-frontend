@@ -26,11 +26,11 @@ export interface Passage {
   paragraphs: PassageParagraph[];
 }
 
-// バックエンド設計書の例JSONにはMCQ/見出しマッチングの選択肢が明記されていないため、
-// 追加的な拡張としてoptionsを持たせる（TFNG/穴埋めでは未使用）。
+// MCQ/見出しマッチングの選択肢（backend AnswerOptionResponse）。`label`が採点キー
+// （例: "A"/"h2"）、`text`が画面に表示する文言（TFNG/穴埋めでは未使用）。
 export interface QuestionOption {
-  id: string;
   label: string;
+  text: string;
 }
 
 export interface Question {
@@ -53,6 +53,8 @@ export interface QuestionSetDetail {
   difficulty: Difficulty;
   status: QuestionSetStatus;
   passage?: Passage;
+  // Listeningのみ。台本本文の代わりに場面設定の要約を返す（backend QuestionSetDetailResponse）。
+  listeningContext?: string;
   questionGroups: QuestionGroup[];
 }
 

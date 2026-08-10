@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HistoryScreen } from "@/components/history/history-screen";
 import { mockGetAttempts } from "@/lib/attempts/mock-data";
+import { jsonResponse, route, stubFetchRoutes } from "@/test/fetch-mock";
 
 vi.mock("@/lib/attempts/mock-data", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/attempts/mock-data")>();
@@ -13,8 +14,32 @@ vi.mock("@/lib/attempts/mock-data", async (importOriginal) => {
   };
 });
 
+function buildItems(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    attemptId: `att-${i}`,
+    questionSetId: `qs-${i}`,
+    section: i % 2 === 0 ? "READING" : "LISTENING",
+    submittedAt: "2026-08-01T00:00:00Z",
+    rawScore: 5,
+    maxScore: 7,
+  }));
+}
+
+const PAGE_RESPONSE = { items: buildItems(5), page: 0, totalPages: 3 };
+
+beforeEach(() => {
+  stubFetchRoutes([
+    route("GET", "/api/v1/attempts?page=0&size=5", () => jsonResponse(PAGE_RESPONSE)),
+    route("GET", "/api/v1/attempts?section=READING&page=0&size=5", () =>
+      jsonResponse({ items: buildItems(3), page: 0, totalPages: 1 }),
+    ),
+    route("GET", "/api/v1/attempts?page=1&size=5", () => jsonResponse(PAGE_RESPONSE)),
+  ]);
+});
+
 afterEach(() => {
   vi.mocked(mockGetAttempts).mockClear();
+  vi.unstubAllGlobals();
 });
 
 describe("HistoryScreen (S-06)", () => {
@@ -24,7 +49,6 @@ describe("HistoryScreen (S-06)", () => {
     expect(
       await screen.findAllByRole("button", { name: "もう一度解く" }, { timeout: 2000 }),
     ).toHaveLength(5);
-    // 12 fixture items / page size 5 -> 3 pages.
     expect(screen.getByRole("button", { name: "3" })).toBeInTheDocument();
   });
 

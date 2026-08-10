@@ -10,6 +10,9 @@ interface GenerationFailedStateProps {
   section: Section;
   topic: string;
   difficulty: Difficulty;
+  // コンテンツ生成自体の失敗（ルール違反等）はこの既定文言を表示する。レート制限超過など
+  // 生成以前にAPI呼び出しが失敗したケースはbackendのエラーメッセージをそのまま渡す。
+  message?: string;
   onRetry: () => void;
 }
 
@@ -17,6 +20,7 @@ export function GenerationFailedState({
   section,
   topic,
   difficulty,
+  message,
   onRetry,
 }: GenerationFailedStateProps) {
   return (
@@ -26,7 +30,8 @@ export function GenerationFailedState({
           <AlertTriangle />
           <AlertTitle>問題の生成に失敗しました</AlertTitle>
           <AlertDescription>
-            サーバー側で2回まで自動リトライしましたが、生成できませんでした。時間をおいて再度お試しください。
+            {message ??
+              "サーバー側で2回まで自動リトライしましたが、生成できませんでした。時間をおいて再度お試しください。"}
           </AlertDescription>
         </Alert>
         <ConditionBadges section={section} topic={topic} difficulty={difficulty} />

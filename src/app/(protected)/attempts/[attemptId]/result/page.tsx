@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { ResultScreen } from "@/components/result/result-screen";
 
@@ -12,5 +13,9 @@ export default async function ResultPage({
   params: Promise<{ attemptId: string }>;
 }) {
   const { attemptId } = await params;
-  return <ResultScreen attemptId={attemptId} />;
+  return (
+    <Suspense>
+      <ResultScreen attemptId={attemptId} />
+    </Suspense>
+  );
 }

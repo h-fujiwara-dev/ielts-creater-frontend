@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { ApiError } from "@/lib/api/client";
 import type { Section } from "@/lib/api/enums";
 import {
   mockGetDashboardHighlights,
@@ -25,6 +26,7 @@ export function DashboardScreen() {
   const [section, setSection] = useState<Section | "ALL">("ALL");
   const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null);
   const [highlights, setHighlights] = useState<DashboardMockHighlights | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 実装メモ（S-07画面設計書）に準拠: period/sectionはサーバー側フィルタとして扱い、
   // 操作の都度 GET /api/v1/dashboard/summary を再取得する。
@@ -34,9 +36,16 @@ export function DashboardScreen() {
     mockGetDashboardSummary({
       period,
       section: section === "ALL" ? undefined : section,
-    }).then((data) => {
-      if (!cancelled) setSummary(data);
-    });
+    })
+      .then((data) => {
+        if (!cancelled) setSummary(data);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setErrorMessage(
+          error instanceof ApiError ? error.message : "ダッシュボードの取得に失敗しました。"
+        );
+      });
 
     return () => {
       cancelled = true;
@@ -46,6 +55,14 @@ export function DashboardScreen() {
   useEffect(() => {
     mockGetDashboardHighlights().then(setHighlights);
   }, []);
+
+  if (errorMessage) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-16 text-center">
+        <p className="text-sm font-medium text-destructive">{errorMessage}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">

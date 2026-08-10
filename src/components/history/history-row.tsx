@@ -47,7 +47,11 @@ export function HistoryRow({ item }: HistoryRowProps) {
         <Button
           variant="ghost"
           size="sm"
-          render={<Link href={`/attempts/${item.attemptId}/result`} />}
+          render={
+            <Link
+              href={`/attempts/${item.attemptId}/result?questionSetId=${item.questionSetId}&submittedAt=${encodeURIComponent(item.submittedAt)}`}
+            />
+          }
           nativeButton={false}
         >
           結果を見る ›

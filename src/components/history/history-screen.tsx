@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ApiError } from "@/lib/api/client";
 import { SECTION_LABELS, type Section } from "@/lib/api/enums";
 import { mockGetAttempts } from "@/lib/attempts/mock-data";
 import type { AttemptListItem } from "@/lib/attempts/types";
@@ -19,6 +20,7 @@ export function HistoryScreen() {
   const [items, setItems] = useState<AttemptListItem[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,12 +29,19 @@ export function HistoryScreen() {
       section: section === "ALL" ? undefined : section,
       page,
       size: PAGE_SIZE,
-    }).then((response) => {
-      if (cancelled) return;
-      setItems(response.items);
-      setTotalPages(response.totalPages);
-      setIsLoaded(true);
-    });
+    })
+      .then((response) => {
+        if (cancelled) return;
+        setItems(response.items);
+        setTotalPages(response.totalPages);
+        setIsLoaded(true);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setErrorMessage(
+          error instanceof ApiError ? error.message : "履歴の取得に失敗しました。"
+        );
+      });
 
     return () => {
       cancelled = true;
@@ -64,6 +73,8 @@ export function HistoryScreen() {
           <TabsTrigger value="LISTENING">{SECTION_LABELS.LISTENING}</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      {errorMessage && <p className="text-sm font-medium text-destructive">{errorMessage}</p>}
 
       {isLoaded && (
         <>

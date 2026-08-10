@@ -1,7 +1,7 @@
 "use client";
 
 import { Pause, Play } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { AudioSegment } from "@/lib/question-sets/types";
 
@@ -16,38 +16,76 @@ function formatTime(ms: number): string {
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
-// 複数の音声セグメントを1つの連続音声として見せるプレイヤー。実際の音声ファイルには
-// 接続せず（署名付きURLの発行はスコープ外）、再生位置はローカルstateで疑似的に進める。
+// 複数の音声セグメントを1つの連続音声として見せるプレイヤー。GET .../audio-segments/{id}/file
+// （backendがローカルファイルを配信、Next.jsのrewritesプロキシ経由）を1セグメントずつ再生し、
+// 終了時に自動で次のセグメントへ進める。
 export function AudioPlayer({ segments }: AudioPlayerProps) {
-  const totalDurationMs = segments.reduce((sum, segment) => sum + segment.durationMs, 0);
+  const sorted = [...segments].sort((a, b) => a.turnIndex - b.turnIndex);
+  const totalDurationMs = sorted.reduce((sum, segment) => sum + segment.durationMs, 0);
+  const priorDurationMs = sorted.reduce<number[]>((acc, _segment, index) => {
+    acc.push(index === 0 ? 0 : acc[index - 1] + sorted[index - 1].durationMs);
+    return acc;
+  }, []);
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [segmentIndex, setSegmentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
 
+  const currentSegment = sorted[segmentIndex];
+
   useEffect(() => {
-    if (!isPlaying) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    const interval = setInterval(() => {
-      setElapsedMs((prev) => {
-        const next = prev + 1000;
-        if (next >= totalDurationMs) {
-          setIsPlaying(false);
-          return totalDurationMs;
-        }
-        return next;
-      });
-    }, 1000);
+    const handleTimeUpdate = () => {
+      setElapsedMs((priorDurationMs[segmentIndex] ?? 0) + audio.currentTime * 1000);
+    };
+    const handleEnded = () => {
+      if (segmentIndex < sorted.length - 1) {
+        setSegmentIndex((prev) => prev + 1);
+      } else {
+        setIsPlaying(false);
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, [isPlaying, totalDurationMs]);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+    return () => {
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [segmentIndex]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !isPlaying) return;
+    audio.play().catch(() => setIsPlaying(false));
+  }, [segmentIndex, isPlaying]);
+
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio.play().catch(() => setIsPlaying(false));
+      setIsPlaying(true);
+    }
+  };
 
   const progress = totalDurationMs > 0 ? (elapsedMs / totalDurationMs) * 100 : 0;
 
   return (
     <div className="flex items-center gap-4 rounded-full bg-brand-navy px-4 py-3 text-white">
+      {currentSegment && <audio ref={audioRef} src={currentSegment.url} preload="metadata" />}
       <button
         type="button"
-        onClick={() => setIsPlaying((prev) => !prev)}
-        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-orange text-white"
+        onClick={togglePlay}
+        disabled={!currentSegment}
+        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-orange text-white disabled:opacity-50"
         aria-label={isPlaying ? "一時停止" : "再生"}
       >
         {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 translate-x-px" />}
