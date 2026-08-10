@@ -1,11 +1,15 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 
 export function Story() {
   return (
     <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2">
-      <div>
-        <h2 className="text-3xl font-bold text-brand-navy md:text-4xl">
+      <RevealOnScroll>
+        <p className="text-sm font-bold tracking-wide text-brand-orange">
+          なぜIELTS Creatorなのか
+        </p>
+        <h2 className="mt-3 text-3xl font-bold text-brand-navy md:text-4xl">
           同じ問題を繰り返す時代は、終わりに。
         </h2>
         <p className="mt-5 max-w-md text-base text-brand-navy/70">
@@ -26,8 +30,11 @@ export function Story() {
             ログイン
           </Button>
         </div>
-      </div>
-      <div className="relative aspect-4/3 overflow-hidden rounded-3xl shadow-xl shadow-brand-navy/10">
+      </RevealOnScroll>
+      <RevealOnScroll
+        delay={150}
+        className="relative aspect-4/3 overflow-hidden rounded-3xl shadow-xl shadow-brand-navy/10"
+      >
         <Image
           src="/images/story-writing.jpg"
           alt="ノートに書き込みながら学習する人物"
@@ -43,7 +50,7 @@ export function Story() {
         >
           Photo by Hannah Olinger on Unsplash
         </a>
-      </div>
+      </RevealOnScroll>
     </section>
   );
 }
