@@ -2,6 +2,7 @@ import type { Difficulty, Section } from "@/lib/api/enums";
 import { simulateDelay } from "@/lib/mock/simulate-delay";
 
 import type {
+  AudioSegmentsResponse,
   CreateQuestionSetRequest,
   CreateQuestionSetResponse,
   QuestionSetDetail,
@@ -64,6 +65,16 @@ export function mockCreateQuestionSet(
   return simulateDelay({ id, status: "GENERATING", topic }, 400);
 }
 
+// Matching Headingsの見出し選択肢（ダミー選択肢を含む、画面設計書S-04の実装メモ参照）。
+// Paragraph 2→h2, Paragraph 3→h4が正解（src/lib/attempts/mock-data.tsの採点キーと対応）。
+const HEADING_OPTIONS = [
+  { id: "h1", label: "The economic case for green spaces" },
+  { id: "h2", label: "How urban parks influence local temperatures" },
+  { id: "h3", label: "Comparing rural and urban wildlife" },
+  { id: "h4", label: "Funding challenges facing green space projects" },
+  { id: "h5", label: "Alternative approaches in space-constrained cities" },
+];
+
 function buildReadyFixture(job: GenerationJob, id: string): QuestionSetDetail {
   if (job.section === "READING") {
     return {
@@ -77,7 +88,19 @@ function buildReadyFixture(job: GenerationJob, id: string): QuestionSetDetail {
         paragraphs: [
           {
             id: "A",
-            text: "Urban green spaces, such as parks and rooftop gardens, have become an essential part of city planning as populations continue to grow.",
+            text: "Urban green spaces, such as parks and rooftop gardens, have become an essential part of city planning as populations continue to grow. Advocates argue that access to nature within cities improves both physical and mental wellbeing.",
+          },
+          {
+            id: "B",
+            text: "Research shows that tree cover and vegetation can lower surrounding air temperatures by several degrees during summer months, a phenomenon known as the urban heat island effect. Some cities use vertical gardens and rooftop parks as space-efficient alternatives to large parks, allowing greenery to be introduced even in dense districts.",
+          },
+          {
+            id: "C",
+            text: "However, funding for green space projects has not increased steadily. In several major cities, budgets for parks and public gardens were cut during economic downturns and only partially restored afterward, leaving maintenance backlogs.",
+          },
+          {
+            id: "D",
+            text: "Rising land prices have put economic pressure on urban green spaces, as developers compete for the same land that could otherwise be used for parks. Balancing commercial development with public green space remains a central challenge for city planners.",
           },
         ],
       },
@@ -91,6 +114,55 @@ function buildReadyFixture(job: GenerationJob, id: string): QuestionSetDetail {
               id: "q1",
               promptText: "Urban parks reduce average city temperatures.",
               displayOrder: 1,
+            },
+            {
+              id: "q2",
+              promptText: "All city residents live within walking distance of a park.",
+              displayOrder: 2,
+            },
+            {
+              id: "q3",
+              promptText:
+                "Government funding for green spaces has increased every year since 2010.",
+              displayOrder: 3,
+            },
+          ],
+        },
+        {
+          formatType: "FILL_BLANK",
+          instructions:
+            "Complete the sentences below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+          questions: [
+            {
+              id: "q4",
+              promptText:
+                "Some cities use ______ and rooftop parks as space-efficient alternatives to large parks.",
+              displayOrder: 4,
+            },
+            {
+              id: "q5",
+              promptText:
+                "Rising land prices have put ______ pressure on urban green spaces.",
+              displayOrder: 5,
+            },
+          ],
+        },
+        {
+          formatType: "MATCHING_HEADINGS",
+          instructions:
+            "Choose the correct heading for each paragraph from the list of headings below.",
+          questions: [
+            {
+              id: "q6",
+              promptText: "Paragraph 2",
+              displayOrder: 6,
+              options: HEADING_OPTIONS,
+            },
+            {
+              id: "q7",
+              promptText: "Paragraph 3",
+              displayOrder: 7,
+              options: HEADING_OPTIONS,
             },
           ],
         },
@@ -110,7 +182,7 @@ function buildReadyFixture(job: GenerationJob, id: string): QuestionSetDetail {
         instructions: "音声を聞いて、正しい選択肢を選んでください。",
         questions: [
           {
-            id: "q1",
+            id: "ql1",
             promptText: "What is the main topic of the talk?",
             displayOrder: 1,
             options: [
@@ -119,10 +191,34 @@ function buildReadyFixture(job: GenerationJob, id: string): QuestionSetDetail {
               { id: "c", label: "Course registration" },
             ],
           },
+          {
+            id: "ql2",
+            promptText: "What time does the library open on weekdays?",
+            displayOrder: 2,
+            options: [
+              { id: "a", label: "8:00 AM" },
+              { id: "b", label: "9:00 AM" },
+              { id: "c", label: "10:00 AM" },
+            ],
+          },
         ],
       },
     ],
   };
+}
+
+// GET /api/v1/question-sets/{id}/audio-segments のモック。実バックエンドは署名付きS3 URL
+// を返すが、モックでは型のみ満たし実音声ファイルには接続しない（#00021実装メモ参照）。
+export function mockGetAudioSegments(id: string): Promise<AudioSegmentsResponse> {
+  return simulateDelay(
+    {
+      segments: [
+        { turnIndex: 0, url: `mock://${id}/turn-0.mp3`, durationMs: 112000 },
+        { turnIndex: 1, url: `mock://${id}/turn-1.mp3`, durationMs: 108000 },
+      ],
+    },
+    200
+  );
 }
 
 export function mockGetQuestionSet(id: string): Promise<QuestionSetDetail> {
