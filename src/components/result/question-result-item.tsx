@@ -4,10 +4,17 @@ import type { AttemptAnswerResult } from "@/lib/attempts/types";
 interface QuestionResultItemProps {
   answer: AttemptAnswerResult;
   promptText: string;
+  // MCQ/MATCHING_HEADINGSはuserAnswerText/correctAnswerが選択肢のlabel（例: "B"/"iii"）で
+  // 返るため、表示用にlabel→text（選択肢本文）へ解決するためのマップ（設問単位）。
+  // TFNG/FILL_BLANKには選択肢がなくマップも空になるため、その場合は値をそのまま表示する。
+  optionTextByLabel?: Record<string, string>;
 }
 
-export function QuestionResultItem({ answer, promptText }: QuestionResultItemProps) {
-  const isUnanswered = answer.userAnswerText.length === 0;
+export function QuestionResultItem({ answer, promptText, optionTextByLabel }: QuestionResultItemProps) {
+  const userAnswerText = answer.userAnswerText ?? "";
+  const isUnanswered = userAnswerText.length === 0;
+
+  const resolve = (label: string) => optionTextByLabel?.[label] ?? label;
 
   return (
     <div className="flex flex-col gap-2 border-b border-border py-4 last:border-b-0">
@@ -23,8 +30,8 @@ export function QuestionResultItem({ answer, promptText }: QuestionResultItemPro
       </div>
 
       <p className="text-sm text-muted-foreground">
-        あなたの回答: {isUnanswered ? "（未回答）" : answer.userAnswerText}
-        {!answer.isCorrect && <> / 正解: {answer.correctAnswer}</>}
+        あなたの回答: {isUnanswered ? "（未回答）" : resolve(userAnswerText)}
+        {!answer.isCorrect && <> / 正解: {resolve(answer.correctAnswer)}</>}
       </p>
 
       {!answer.isCorrect && answer.explanation && (
