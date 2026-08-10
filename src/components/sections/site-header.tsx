@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpenCheck, Menu, X } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -40,14 +41,16 @@ export function SiteHeader() {
 
         <div className="hidden items-center gap-3 md:flex">
           <Button
-            type="button"
             variant="outline"
+            render={<Link href="/login" />}
+            nativeButton={false}
             className="cursor-pointer rounded-full border-brand-navy/20 px-5 text-brand-navy transition-colors duration-200 hover:bg-brand-navy/5"
           >
             ログイン
           </Button>
           <Button
-            type="button"
+            render={<Link href="/login" />}
+            nativeButton={false}
             className="cursor-pointer rounded-full bg-brand-navy px-5 text-white shadow-sm transition-all duration-200 hover:bg-brand-navy-light hover:shadow-md"
           >
             無料ではじめる
@@ -81,14 +84,16 @@ export function SiteHeader() {
           </nav>
           <div className="mt-3 flex flex-col gap-2">
             <Button
-              type="button"
               variant="outline"
+              render={<Link href="/login" onClick={() => setMenuOpen(false)} />}
+              nativeButton={false}
               className="cursor-pointer rounded-full border-brand-navy/20 text-brand-navy"
             >
               ログイン
             </Button>
             <Button
-              type="button"
+              render={<Link href="/login" onClick={() => setMenuOpen(false)} />}
+              nativeButton={false}
               className="cursor-pointer rounded-full bg-brand-navy text-white"
             >
               無料ではじめる
