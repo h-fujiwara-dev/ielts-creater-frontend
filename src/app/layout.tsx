@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ja"
-      className={`${plusJakartaSans.variable} ${notoSansJP.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} ${notoSansJP.variable} ${geistMono.variable} h-full scroll-smooth antialiased motion-reduce:scroll-auto`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

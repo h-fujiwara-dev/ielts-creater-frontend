@@ -38,17 +38,17 @@ interface DotFieldProps {
 }
 
 export const DotField = memo(function DotField({
-  dotRadius = 2.75,
-  dotSpacing = 15,
+  dotRadius = 3.25,
+  dotSpacing = 14,
   cursorRadius = 220,
   cursorForce = 0.1,
   bulgeOnly = true,
-  bulgeStrength = 40,
+  bulgeStrength = 50,
   glowRadius = 160,
   sparkle = false,
   waveAmplitude = 0,
-  gradientFrom = "rgba(15, 23, 42, 0.65)",
-  gradientTo = "rgba(249, 115, 22, 0.4)",
+  gradientFrom = "rgba(15, 23, 42, 0.8)",
+  gradientTo = "rgba(249, 115, 22, 0.5)",
   glowColor = "#f97316",
   className = "",
 }: DotFieldProps) {
@@ -95,6 +95,8 @@ export const DotField = memo(function DotField({
     const canvas = canvasRef.current;
     const glowEl = glowRef.current;
     if (!canvas) return;
+    const parent = canvas.parentElement;
+    if (!parent) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -121,9 +123,8 @@ export const DotField = memo(function DotField({
     }
 
     function doResize() {
-      if (!canvas) return;
-      const rect = canvas.parentElement?.getBoundingClientRect();
-      if (!rect) return;
+      if (!canvas || !parent) return;
+      const rect = parent.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
 
@@ -272,6 +273,16 @@ export const DotField = memo(function DotField({
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     rafRef.current = requestAnimationFrame(tick);
 
+    // The initial doResize() above can run before the Hero section has
+    // settled into its final layout (e.g. Noto Sans JP / Plus Jakarta Sans
+    // loading via font-display: swap reflows the section after first
+    // paint). That reflow doesn't fire a `window` resize event, so without
+    // this the canvas can be left permanently sized at 0 and never draw any
+    // dots. A ResizeObserver on the actual parent element catches layout
+    // changes regardless of what caused them.
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(parent);
+
     rebuildRef.current = () => {
       const { w, h } = sizeRef.current;
       if (w > 0 && h > 0) buildDots(w, h);
@@ -283,6 +294,7 @@ export const DotField = memo(function DotField({
       clearTimeout(resizeTimer);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouseMove);
+      ro.disconnect();
     };
   }, [prefersReducedMotion]);
 
