@@ -1,4 +1,5 @@
 import { BookOpenCheck, Globe, MessageCircle, Rss } from "lucide-react";
+import Link from "next/link";
 
 const socialLinks = [
   { label: "公式サイト", icon: Globe },
@@ -12,7 +13,10 @@ const navLinks = [
   { label: "出題形式", href: "#formats" },
 ];
 
-const legalLinks = ["プライバシーポリシー", "利用規約"];
+const legalLinks = [
+  { label: "プライバシーポリシー", href: "/privacy" },
+  { label: "利用規約", href: "/terms" },
+];
 
 export function SiteFooter() {
   return (
@@ -59,14 +63,14 @@ export function SiteFooter() {
           <div>
             <p className="text-sm font-semibold text-white/90">規約</p>
             <div className="mt-4 flex flex-col gap-2.5">
-              {legalLinks.map((label) => (
-                <button
-                  key={label}
-                  type="button"
-                  className="cursor-pointer text-left text-sm text-white/60 transition-colors duration-200 hover:text-white"
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-white/60 transition-colors duration-200 hover:text-white"
                 >
-                  {label}
-                </button>
+                  {link.label}
+                </Link>
               ))}
             </div>
           </div>
