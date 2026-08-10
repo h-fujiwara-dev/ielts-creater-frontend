@@ -1,3 +1,4 @@
+import { mockGetQuestionSet } from "@/lib/question-sets/mock-data";
 import { simulateDelay } from "@/lib/mock/simulate-delay";
 
 import {
@@ -8,6 +9,7 @@ import {
 } from "./storage";
 import type {
   AttemptAnswerResult,
+  AttemptMockMeta,
   AttemptResult,
   GetSavedAnswersResponse,
   PatchAnswersRequest,
@@ -66,7 +68,7 @@ const QUESTION_IDS_BY_QUESTION_SET: Record<string, string[]> = {
   "mock-qs-listening": ["ql1", "ql2"],
 };
 
-function questionSetIdFromAttemptId(attemptId: string): string {
+export function questionSetIdFromAttemptId(attemptId: string): string {
   return attemptId.replace(/^att-/, "");
 }
 
@@ -136,4 +138,48 @@ export function mockSubmitAttempt(attemptId: string): Promise<AttemptResult> {
 
   writeAttemptResult(attemptId, result);
   return simulateDelay(result, 500);
+}
+
+// GET /api/v1/attempts/{id} のモック。POST submit（上記）とレスポンス形状が同一のため
+// AttemptResult型を共有する。S-06履歴一覧からの遷移など、保存済み結果がない場合は
+// 0点のダミー結果にフォールバックする（S-05結果画面が確実に描画できるようにするため）。
+export function mockGetAttemptResult(attemptId: string): Promise<AttemptResult> {
+  const stored = readAttemptResult(attemptId);
+  if (stored) return simulateDelay(stored, 300);
+
+  const questionIds = QUESTION_IDS_BY_QUESTION_SET[questionSetIdFromAttemptId(attemptId)] ?? [];
+  const answers = questionIds.map((questionId) => gradeAnswer(questionId, undefined));
+  return simulateDelay({ attemptId, rawScore: 0, maxScore: answers.length, answers }, 300);
+}
+
+// AttemptResult型には含まれないスコアサマリー表示用の付随情報（モック専用）。
+export async function mockGetAttemptMeta(attemptId: string): Promise<AttemptMockMeta> {
+  const questionSetId = questionSetIdFromAttemptId(attemptId);
+  const detail = await mockGetQuestionSet(questionSetId);
+
+  return simulateDelay(
+    {
+      section: detail.section,
+      topic: detail.topic,
+      difficulty: detail.difficulty,
+      submittedAt: new Date().toISOString(),
+      durationMinutes: detail.section === "READING" ? 18 : 12,
+    },
+    200
+  );
+}
+
+// AttemptAnswerResultにはquestionIdしか含まれない（実バックエンド仕様に忠実）ため、
+// 結果画面の表示用に設問文をquestionId単位で引けるようにする補助関数（モック専用）。
+export async function mockGetAttemptQuestionPrompts(
+  attemptId: string
+): Promise<Record<string, string>> {
+  const detail = await mockGetQuestionSet(questionSetIdFromAttemptId(attemptId));
+  const prompts: Record<string, string> = {};
+  for (const group of detail.questionGroups) {
+    for (const question of group.questions) {
+      prompts[question.id] = question.promptText;
+    }
+  }
+  return prompts;
 }
