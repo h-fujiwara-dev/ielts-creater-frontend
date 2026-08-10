@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { ApiError } from "@/lib/api/client";
 import type { Difficulty, Section } from "@/lib/api/enums";
 import { difficultySchema, sectionSchema, type GenerationFormValues } from "@/lib/question-sets/schemas";
 import { mockCreateQuestionSet, mockGetQuestionSet } from "@/lib/question-sets/mock-data";
@@ -40,27 +41,49 @@ export function QuestionGenerationScreen() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>("form");
   const [conditions, setConditions] = useState<GeneratingConditions | null>(null);
+  // GET .../{id}が生成失敗(status=FAILED)を返した場合はコンテンツ生成自体の失敗である一方、
+  // POST/GET自体が例外を投げるケース（429のレート制限超過等）は原因が異なるため、後者は
+  // backendのエラーメッセージをそのまま表示する（前者はGenerationFailedStateの既定文言）。
+  const [failureMessage, setFailureMessage] = useState<string | undefined>(undefined);
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startGeneration = useCallback(async (values: GenerationFormValues) => {
-    const response = await mockCreateQuestionSet(values);
-    setConditions({
-      questionSetId: response.id,
-      section: values.section,
-      topic: response.topic,
-      difficulty: values.difficulty,
-    });
-    setStep("generating");
+    try {
+      const response = await mockCreateQuestionSet(values);
+      setConditions({
+        questionSetId: response.id,
+        section: values.section,
+        topic: response.topic,
+        difficulty: values.difficulty,
+      });
+      setFailureMessage(undefined);
+      setStep("generating");
+    } catch (error) {
+      setConditions({
+        questionSetId: "",
+        section: values.section,
+        topic: values.topic ?? "",
+        difficulty: values.difficulty,
+      });
+      setFailureMessage(error instanceof ApiError ? error.message : undefined);
+      setStep("failed");
+    }
   }, []);
 
   useEffect(() => {
     if (step !== "generating" || !conditions) return;
 
     const poll = async () => {
-      const detail = await mockGetQuestionSet(conditions.questionSetId);
-      if (detail.status === "READY") {
-        router.push(`/practice/${conditions.questionSetId}`);
-      } else if (detail.status === "FAILED") {
+      try {
+        const detail = await mockGetQuestionSet(conditions.questionSetId);
+        if (detail.status === "READY") {
+          router.push(`/practice/${conditions.questionSetId}`);
+        } else if (detail.status === "FAILED") {
+          setFailureMessage(undefined);
+          setStep("failed");
+        }
+      } catch (error) {
+        setFailureMessage(error instanceof ApiError ? error.message : undefined);
         setStep("failed");
       }
     };
@@ -117,6 +140,7 @@ export function QuestionGenerationScreen() {
           section={conditions.section}
           topic={conditions.topic}
           difficulty={conditions.difficulty}
+          message={failureMessage}
           onRetry={handleRetry}
         />
       )}

@@ -35,7 +35,8 @@ export interface GetSavedAnswersResponse {
 // (backendリポジトリ docs/API設計書/POST_attempts-id-submit.md)
 export interface AttemptAnswerResult {
   questionId: string;
-  userAnswerText: string;
+  // 一度も回答されなかった設問はAttemptAnswer行自体が存在しないためnullになる。
+  userAnswerText: string | null;
   isCorrect: boolean;
   correctAnswer: string;
   explanation: string | null;
@@ -49,14 +50,17 @@ export interface AttemptResult {
 }
 
 // S-05結果画面のスコアサマリー表示に必要だが、AttemptResult型（バックエンドの
-// submit/GET attempts/{id}レスポンス）には含まれない付随情報。型定義自体は
-// バックエンド仕様に忠実に保つため、モック専用の補助データとして別型にしている。
-export interface AttemptMockMeta {
+// submit/GET attempts/{id}レスポンス）には含まれない付随情報。questionSetId・
+// submittedAtは遷移元（回答画面の提出直後 or 履歴一覧のAttemptListItem）から
+// クエリパラメータで受け取り、section/topic/difficultyはquestionSetIdを使って
+// GET /api/v1/question-sets/{id}から取得して組み立てる（結果画面側の責務）。
+// durationMinutesは履歴一覧経由では取得できないため任意項目とする。
+export interface AttemptResultMeta {
   section: Section;
   topic: string;
   difficulty: Difficulty;
   submittedAt: string;
-  durationMinutes: number;
+  durationMinutes?: number;
 }
 
 // GET /api/v1/attempts のクエリ・レスポンス型（受験履歴一覧、ページング・絞り込み）
