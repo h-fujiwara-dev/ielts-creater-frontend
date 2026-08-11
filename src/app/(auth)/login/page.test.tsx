@@ -1,4 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { signIn } from "next-auth/react";
 import { describe, expect, it, vi } from "vitest";
 
 import LoginPage from "./page";
@@ -20,5 +22,41 @@ describe("LoginPage (S-02)", () => {
     render(await LoginPage({ searchParams: Promise.resolve({ error: "OAuthCallback" }) }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("ログインに失敗しました");
+  });
+
+  it("forwards a same-origin callbackUrl query param to signIn() (#00040)", async () => {
+    vi.mocked(signIn).mockResolvedValueOnce({
+      error: undefined,
+      code: undefined,
+      status: 200,
+      ok: true,
+      url: null,
+    });
+    const user = userEvent.setup();
+    render(await LoginPage({ searchParams: Promise.resolve({ callbackUrl: "/history" }) }));
+
+    await user.click(screen.getByRole("button", { name: /Cognitoでログイン/ }));
+
+    expect(signIn).toHaveBeenCalledWith("cognito", { callbackUrl: "/history" });
+  });
+
+  it("falls back to /dashboard when the callbackUrl query param points off-site (#00040)", async () => {
+    vi.mocked(signIn).mockResolvedValueOnce({
+      error: undefined,
+      code: undefined,
+      status: 200,
+      ok: true,
+      url: null,
+    });
+    const user = userEvent.setup();
+    render(
+      await LoginPage({
+        searchParams: Promise.resolve({ callbackUrl: "https://evil.example.com" }),
+      })
+    );
+
+    await user.click(screen.getByRole("button", { name: /Cognitoでログイン/ }));
+
+    expect(signIn).toHaveBeenCalledWith("cognito", { callbackUrl: "/dashboard" });
   });
 });

@@ -26,7 +26,17 @@ describe("middleware", () => {
     const response = middleware(makeRequest(null));
 
     expect(response?.status).toBe(307);
-    expect(response?.headers.get("location")).toBe("http://localhost:3000/login");
+    expect(response?.headers.get("location")).toBe(
+      "http://localhost:3000/login?callbackUrl=%2Fdashboard"
+    );
+  });
+
+  it("preserves the originally requested path as callbackUrl (#00040)", () => {
+    const response = middleware(makeRequest(null, "/attempts/42/result"));
+
+    expect(response?.headers.get("location")).toBe(
+      "http://localhost:3000/login?callbackUrl=%2Fattempts%2F42%2Fresult"
+    );
   });
 
   it("lets authenticated requests through", () => {
@@ -39,6 +49,8 @@ describe("middleware", () => {
     const response = middleware(makeRequest({ user: {} }));
 
     expect(response?.status).toBe(307);
-    expect(response?.headers.get("location")).toBe("http://localhost:3000/login");
+    expect(response?.headers.get("location")).toBe(
+      "http://localhost:3000/login?callbackUrl=%2Fdashboard"
+    );
   });
 });

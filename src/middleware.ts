@@ -8,7 +8,11 @@ import { hasAppUser } from "@/lib/auth/types";
 // hasAppUser()で(protected)/layout.tsxと同じ基準を用いる（#00038）。
 export default auth((req) => {
   if (!hasAppUser(req.auth)) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
+    const loginUrl = new URL("/login", req.nextUrl);
+    // ブックマーク等からの保護ページへの直リンクをログイン後に復元できるよう、
+    // 元のリクエスト先をcallbackUrlとして引き継ぐ（#00040）。
+    loginUrl.searchParams.set("callbackUrl", `${req.nextUrl.pathname}${req.nextUrl.search}`);
+    return NextResponse.redirect(loginUrl);
   }
 });
 

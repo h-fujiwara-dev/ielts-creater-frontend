@@ -36,4 +36,20 @@ describe("CognitoSignInButton", () => {
 
     expect(await screen.findByRole("button", { name: /Cognitoでログイン/ })).toBeEnabled();
   });
+
+  it("passes the given callbackUrl through to signIn() (#00040)", async () => {
+    vi.mocked(signIn).mockResolvedValueOnce({
+      error: undefined,
+      code: undefined,
+      status: 200,
+      ok: true,
+      url: null,
+    });
+    const user = userEvent.setup();
+    render(<CognitoSignInButton callbackUrl="/history" />);
+
+    await user.click(screen.getByRole("button", { name: /Cognitoでログイン/ }));
+
+    expect(signIn).toHaveBeenCalledWith("cognito", { callbackUrl: "/history" });
+  });
 });
