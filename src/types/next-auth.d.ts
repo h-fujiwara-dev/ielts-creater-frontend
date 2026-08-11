@@ -16,5 +16,6 @@ declare module "@auth/core/jwt" {
     appUserId?: string;
     appUserEmail?: string;
     appUserDisplayName?: string;
+    appUserFetchAttemptedAt?: number;
   }
 }
