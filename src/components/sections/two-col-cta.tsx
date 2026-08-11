@@ -21,8 +21,9 @@ export function TwoColCta() {
             トピックと難易度を選ぶだけ。3ステップで最初の問題が完成します。
           </p>
           <Button
-            type="button"
             size="sm"
+            render={<a href="#how-it-works" />}
+            nativeButton={false}
             className="mt-5 cursor-pointer rounded-full bg-brand-navy text-white transition-colors duration-200 hover:bg-brand-navy-light"
           >
             使い方を見る
@@ -44,14 +45,6 @@ export function TwoColCta() {
           <p className="mt-2 max-w-xs text-sm text-brand-navy/70">
             よくある質問で、使い方や対応形式をまとめて確認できます。
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-5 cursor-pointer rounded-full border-brand-navy/20 bg-white text-brand-navy transition-colors duration-200 hover:bg-brand-navy/5"
-          >
-            よくある質問を見る
-          </Button>
         </SpotlightCard>
       </RevealOnScroll>
     </section>

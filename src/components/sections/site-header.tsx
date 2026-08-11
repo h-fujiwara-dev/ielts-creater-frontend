@@ -22,10 +22,13 @@ export function SiteHeader() {
       }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <div className="flex cursor-pointer items-center gap-2 text-lg font-bold text-brand-navy">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-bold text-brand-navy"
+        >
           <BookOpenCheck className="size-6 text-brand-orange" strokeWidth={2.5} />
           IELTS Creator
-        </div>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
@@ -49,7 +52,7 @@ export function SiteHeader() {
             ログイン
           </Button>
           <Button
-            render={<Link href="/login" />}
+            render={<Link href="/login?step=signup" />}
             nativeButton={false}
             className="cursor-pointer rounded-full bg-brand-navy px-5 text-white shadow-sm transition-all duration-200 hover:bg-brand-navy-light hover:shadow-md"
           >
@@ -92,7 +95,7 @@ export function SiteHeader() {
               ログイン
             </Button>
             <Button
-              render={<Link href="/login" onClick={() => setMenuOpen(false)} />}
+              render={<Link href="/login?step=signup" onClick={() => setMenuOpen(false)} />}
               nativeButton={false}
               className="cursor-pointer rounded-full bg-brand-navy text-white"
             >

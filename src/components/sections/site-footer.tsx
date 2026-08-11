@@ -1,11 +1,5 @@
-import { BookOpenCheck, Globe, MessageCircle, Rss } from "lucide-react";
+import { BookOpenCheck } from "lucide-react";
 import Link from "next/link";
-
-const socialLinks = [
-  { label: "公式サイト", icon: Globe },
-  { label: "コミュニティ", icon: MessageCircle },
-  { label: "フィード", icon: Rss },
-];
 
 const navLinks = [
   { label: "特長", href: "#features" },
@@ -31,18 +25,6 @@ export function SiteFooter() {
             <p className="mt-4 text-sm font-medium text-white/70">
               解いた分だけ、新しい問題に。
             </p>
-            <div className="mt-5 flex gap-3">
-              {socialLinks.map(({ label, icon: Icon }) => (
-                <button
-                  key={label}
-                  type="button"
-                  aria-label={label}
-                  className="cursor-pointer text-white/70 transition-colors duration-200 hover:text-white"
-                >
-                  <Icon className="size-4" />
-                </button>
-              ))}
-            </div>
           </div>
 
           <div>

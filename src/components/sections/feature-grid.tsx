@@ -6,6 +6,7 @@ import {
   Sparkles,
   Volume2,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SpotlightCard } from "@/components/reactbits/spotlight-card";
 import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
@@ -48,14 +49,16 @@ export function FeatureGrid() {
 
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           <Button
-            type="button"
+            render={<Link href="/login?step=signup" />}
+            nativeButton={false}
             className="cursor-pointer rounded-full bg-brand-navy px-6 text-white shadow-sm transition-all duration-200 hover:bg-brand-navy-light hover:shadow-md"
           >
             無料ではじめる
           </Button>
           <Button
-            type="button"
             variant="outline"
+            render={<Link href="/login" />}
+            nativeButton={false}
             className="cursor-pointer rounded-full border-brand-navy/20 bg-transparent px-6 text-brand-navy transition-colors duration-200 hover:bg-white"
           >
             ログイン
