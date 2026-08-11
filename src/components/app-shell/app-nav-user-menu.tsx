@@ -1,7 +1,6 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
 
 import type { AppSessionUser } from "@/lib/auth/types";
 
@@ -30,7 +29,14 @@ export function AppNavUserMenu({ user }: AppNavUserMenuProps) {
       <button
         type="button"
         aria-label="ログアウト"
-        onClick={() => void signOut({ callbackUrl: "/login" })}
+        onClick={() => {
+          // /api/auth/cognito-logoutがNextAuthのローカルセッション破棄とCognito Hosted UIの
+          // グローバルログアウトを両方行う（#00041）。next-auth/reactのsignOut()は使わない。
+          // Route Handlerが外部（Cognito）への複数ホップのリダイレクトを行うため、
+          // router.push()によるSPA遷移ではなく実ページ遷移が必要。
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+          window.location.href = "/api/auth/cognito-logout";
+        }}
         className="flex size-6 shrink-0 items-center justify-center rounded-full text-brand-navy/60 transition-colors duration-200 hover:bg-white hover:text-brand-navy"
       >
         <LogOut className="size-3.5" strokeWidth={2.5} />
