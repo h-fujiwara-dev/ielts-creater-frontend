@@ -6,6 +6,13 @@ export const metadata: Metadata = {
   title: "ログイン / サインアップ | IELTS Creator",
 };
 
-export default function LoginPage() {
-  return <LoginSignupFlow />;
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ step?: string }>;
+}) {
+  const { step } = await searchParams;
+  const initialStep = step === "signup" ? "signup" : "login";
+
+  return <LoginSignupFlow initialStep={initialStep} />;
 }

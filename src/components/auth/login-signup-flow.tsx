@@ -8,8 +8,12 @@ import type { FlowStep } from "./flow-step";
 import { LoginForm } from "./login-form";
 import { SignupForm } from "./signup-form";
 
-export function LoginSignupFlow() {
-  const [step, setStep] = useState<FlowStep>("login");
+type LoginSignupFlowProps = {
+  initialStep?: FlowStep;
+};
+
+export function LoginSignupFlow({ initialStep = "login" }: LoginSignupFlowProps) {
+  const [step, setStep] = useState<FlowStep>(initialStep);
   const [pendingEmail, setPendingEmail] = useState("");
 
   return (

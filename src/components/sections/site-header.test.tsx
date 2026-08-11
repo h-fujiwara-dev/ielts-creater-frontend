@@ -5,6 +5,12 @@ import { describe, expect, it } from "vitest";
 import { SiteHeader } from "@/components/sections/site-header";
 
 describe("SiteHeader (S-01)", () => {
+  it("links the logo back to the top page", () => {
+    render(<SiteHeader />);
+
+    expect(screen.getByRole("link", { name: "IELTS Creator" })).toHaveAttribute("href", "/");
+  });
+
   it("links the desktop login/signup CTAs to /login", () => {
     render(<SiteHeader />);
 
@@ -13,7 +19,7 @@ describe("SiteHeader (S-01)", () => {
     const signupCtas = screen.getAllByRole("button", { name: "無料ではじめる" });
 
     expect(loginCtas[0]).toHaveAttribute("href", "/login");
-    expect(signupCtas[0]).toHaveAttribute("href", "/login");
+    expect(signupCtas[0]).toHaveAttribute("href", "/login?step=signup");
   });
 
   it("toggles the mobile menu open and closed", async () => {

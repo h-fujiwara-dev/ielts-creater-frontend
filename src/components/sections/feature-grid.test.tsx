@@ -12,4 +12,15 @@ describe("FeatureGrid (S-01)", () => {
       expect(screen.getByRole("heading", { level: 3, name: feature.title })).toBeInTheDocument();
     }
   });
+
+  it("links the CTAs to /login", () => {
+    render(<FeatureGrid />);
+
+    // Button renders an <a> with an explicit role="button" (nativeButton={false}), not role="link".
+    expect(screen.getByRole("button", { name: "無料ではじめる" })).toHaveAttribute(
+      "href",
+      "/login?step=signup",
+    );
+    expect(screen.getByRole("button", { name: "ログイン" })).toHaveAttribute("href", "/login");
+  });
 });

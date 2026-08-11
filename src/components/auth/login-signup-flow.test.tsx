@@ -21,6 +21,12 @@ describe("LoginSignupFlow (S-02)", () => {
     expect(screen.getByRole("heading", { name: "おかえりなさい" })).toBeInTheDocument();
   });
 
+  it("starts on the signup step when initialStep is signup", () => {
+    render(<LoginSignupFlow initialStep="signup" />);
+
+    expect(screen.getByRole("heading", { name: "アカウントを作成" })).toBeInTheDocument();
+  });
+
   it("walks through signup -> confirm code -> back to login", async () => {
     const user = userEvent.setup();
     render(<LoginSignupFlow />);

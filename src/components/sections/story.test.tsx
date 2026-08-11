@@ -1,22 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Hero } from "@/components/sections/hero";
+import { Story } from "@/components/sections/story";
 
-describe("Hero (S-01)", () => {
-  it("renders the main heading and CTA buttons without throwing", () => {
-    render(<Hero />);
+describe("Story (S-01)", () => {
+  it("renders the heading and CTA buttons", () => {
+    render(<Story />);
 
-    const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading).toHaveTextContent("解いた分だけ、");
-    expect(heading).toHaveTextContent("新しい問題に出会える。");
-
+    expect(
+      screen.getByRole("heading", { name: "同じ問題を繰り返す時代は、終わりに。" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "無料ではじめる" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ログイン" })).toBeInTheDocument();
   });
 
   it("links the CTAs to /login", () => {
-    render(<Hero />);
+    render(<Story />);
 
     // Button renders an <a> with an explicit role="button" (nativeButton={false}), not role="link".
     expect(screen.getByRole("button", { name: "無料ではじめる" })).toHaveAttribute(
