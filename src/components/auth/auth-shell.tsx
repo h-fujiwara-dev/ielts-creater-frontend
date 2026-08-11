@@ -1,17 +1,15 @@
 import type { ReactNode } from "react";
 
 import { AuthBrandPanel } from "./auth-brand-panel";
-import type { FlowStep } from "./flow-step";
 
 interface AuthShellProps {
-  step: FlowStep;
   children: ReactNode;
 }
 
-export function AuthShell({ step, children }: AuthShellProps) {
+export function AuthShell({ children }: AuthShellProps) {
   return (
     <div className="grid w-full overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10 min-[780px]:grid-cols-[0.85fr_1fr]">
-      <AuthBrandPanel step={step} />
+      <AuthBrandPanel />
       <div className="flex flex-col justify-center p-10">{children}</div>
     </div>
   );

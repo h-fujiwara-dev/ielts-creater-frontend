@@ -2,6 +2,9 @@ import NextAuth from "next-auth";
 import Cognito from "next-auth/providers/cognito";
 import { z } from "zod";
 
+import { BACKEND_API_ORIGIN } from "@/lib/env/backend-api-origin";
+import { buildBearerHeader, safeJson } from "@/lib/api/http";
+
 // GET /api/v1/meへの問い合わせがハングしてサインインフロー全体をブロックしないための上限（#00038）。
 const FETCH_ME_TIMEOUT_MS = 8_000;
 // appUserId未取得のまま確立したセッションについて、後続リクエストで再試行する際の最短間隔。
@@ -81,12 +84,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 async function fetchMe(
   accessToken: string
 ): Promise<{ id: string; email: string; displayName: string } | null> {
-  const backendOrigin = process.env.BACKEND_API_ORIGIN ?? "http://localhost:8080";
-
   let response: Response;
   try {
-    response = await fetch(`${backendOrigin}/api/v1/me`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    response = await fetch(`${BACKEND_API_ORIGIN}/api/v1/me`, {
+      headers: buildBearerHeader(accessToken),
       signal: AbortSignal.timeout(FETCH_ME_TIMEOUT_MS),
     });
   } catch (error) {
@@ -99,7 +100,7 @@ async function fetchMe(
     return null;
   }
 
-  const body: unknown = await response.json().catch(() => null);
+  const body = await safeJson(response);
   const parsed = meResponseSchema.safeParse(body);
   if (!parsed.success) {
     console.error("[auth] GET /api/v1/me returned an unexpected response shape", parsed.error);

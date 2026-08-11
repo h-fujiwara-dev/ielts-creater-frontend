@@ -17,7 +17,7 @@ export default async function LoginPage({
   const { error, callbackUrl } = await searchParams;
 
   return (
-    <AuthShell step="login">
+    <AuthShell>
       <h2 className="text-xl font-bold text-brand-navy">おかえりなさい</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Cognitoでログイン、またはアカウントを新規登録してください
