@@ -1,3 +1,5 @@
+import { getSession } from "next-auth/react";
+
 import type { ApiErrorResponse } from "./common-types";
 
 // backendのGlobalExceptionHandlerが返すエラー形状をそのまま保持する例外型。
@@ -20,12 +22,18 @@ const FALLBACK_ERROR = (statusText: string): ApiErrorResponse => ({
 });
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const session = await getSession();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (session?.accessToken) {
+    headers.Authorization = `Bearer ${session.accessToken}`;
+  }
+
   let response: Response;
   try {
-    response = await fetch(path, {
-      ...init,
-      headers: { "Content-Type": "application/json", ...init?.headers },
-    });
+    response = await fetch(path, { ...init, headers });
   } catch {
     throw new ApiError(0, {
       error: "NETWORK_ERROR",
