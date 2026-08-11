@@ -1,25 +1,9 @@
 import { BookOpenCheck } from "lucide-react";
 
-import type { FlowStep } from "./flow-step";
+const HEADING = "解いた分だけ、\n新しい問題に出会える。";
+const DESCRIPTION = "AIが生成するIELTS対策アプリで、Reading・Listeningを何度でも練習できます。";
 
-const COPY: Record<FlowStep, { heading: string; description: string }> = {
-  login: {
-    heading: "解いた分だけ、\n新しい問題に出会える。",
-    description: "AIが生成するIELTS対策アプリで、Reading・Listeningを何度でも練習できます。",
-  },
-  signup: {
-    heading: "トピックと難易度を選ぶだけ。\nあとはAIにおまかせ。",
-    description: "自動採点・解説・学習履歴の記録までワンストップで。",
-  },
-  confirmCode: {
-    heading: "もうすぐ完了です。",
-    description: "メールに届いた確認コードを入力してアカウントを有効化してください。",
-  },
-};
-
-export function AuthBrandPanel({ step }: { step: FlowStep }) {
-  const copy = COPY[step];
-
+export function AuthBrandPanel() {
   return (
     <div className="relative hidden flex-col justify-between overflow-hidden bg-linear-[160deg] from-brand-navy to-brand-navy-light p-10 text-white min-[780px]:flex">
       <div
@@ -31,8 +15,8 @@ export function AuthBrandPanel({ step }: { step: FlowStep }) {
         IELTS Creator
       </span>
       <div className="relative z-10">
-        <p className="text-xl leading-snug font-bold whitespace-pre-line">{copy.heading}</p>
-        <p className="mt-3 text-sm text-white/70">{copy.description}</p>
+        <p className="text-xl leading-snug font-bold whitespace-pre-line">{HEADING}</p>
+        <p className="mt-3 text-sm text-white/70">{DESCRIPTION}</p>
       </div>
     </div>
   );
