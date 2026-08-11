@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
-import { LoginSignupFlow } from "@/components/auth/login-signup-flow";
+import { AuthAlert } from "@/components/auth/auth-alert";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { CognitoSignInButton } from "@/components/auth/cognito-sign-in-button";
 
 export const metadata: Metadata = {
   title: "ログイン / サインアップ | IELTS Creator",
@@ -9,10 +11,26 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ step?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const { step } = await searchParams;
-  const initialStep = step === "signup" ? "signup" : "login";
+  const { error } = await searchParams;
 
-  return <LoginSignupFlow initialStep={initialStep} />;
+  return (
+    <AuthShell step="login">
+      <h2 className="text-xl font-bold text-brand-navy">おかえりなさい</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Cognitoでログイン、またはアカウントを新規登録してください
+      </p>
+
+      {error && (
+        <div className="mt-5">
+          <AuthAlert message="ログインに失敗しました。もう一度お試しください。" />
+        </div>
+      )}
+
+      <div className="mt-6">
+        <CognitoSignInButton />
+      </div>
+    </AuthShell>
+  );
 }

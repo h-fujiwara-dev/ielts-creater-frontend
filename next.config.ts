@@ -1,9 +1,10 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 
-// backendはno-authモードでCORS未設定のため、ブラウザからは同一オリジン経由で
-// 叩けるようこのプロキシを通す（#00032）。BACKEND_API_ORIGIN未設定時はローカルの
-// bootRunデフォルトポート(8080)を向く。
+// backendはno-authモード(ローカル開発)ではCORS未設定のため、ブラウザからは同一オリジン
+// 経由で叩けるようこのプロキシを通す（#00032）。cognitoモードでもBearerトークン付与は
+// lib/api/client.ts側で行うため、プロキシ経由のリクエスト構成自体は変わらない。
+// BACKEND_API_ORIGIN未設定時はローカルのbootRunデフォルトポート(8080)を向く。
 const backendApiOrigin = process.env.BACKEND_API_ORIGIN ?? "http://localhost:8080";
 
 const nextConfig: NextConfig = {

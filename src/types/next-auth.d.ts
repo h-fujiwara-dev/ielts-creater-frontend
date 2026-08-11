@@ -13,5 +13,8 @@ declare module "@auth/core/jwt" {
   interface JWT {
     accessToken?: string;
     idToken?: string;
+    appUserId?: string;
+    appUserEmail?: string;
+    appUserDisplayName?: string;
   }
 }
