@@ -16,7 +16,12 @@ export function CognitoSignInButton() {
       disabled={isPending}
       onClick={() => {
         setIsPending(true);
-        void signIn("cognito", { callbackUrl: "/dashboard" });
+        // signIn()はリダイレクト前にCSRF/プロバイダ情報取得のfetchを行うため、オフライン等で
+        // そこが失敗するとリダイレクトされないままisPendingが固着してしまう。catchでリセットする
+        // （#00039）。
+        signIn("cognito", { callbackUrl: "/dashboard" }).catch(() => {
+          setIsPending(false);
+        });
       }}
       className="h-11 w-full rounded-full bg-brand-navy text-white hover:bg-brand-navy-light"
     >
