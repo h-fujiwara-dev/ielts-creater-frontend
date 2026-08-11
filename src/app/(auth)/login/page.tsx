@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { AuthAlert } from "@/components/auth/auth-alert";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { CognitoSignInButton } from "@/components/auth/cognito-sign-in-button";
+import { sanitizeCallbackUrl } from "@/lib/auth/callback-url";
 
 export const metadata: Metadata = {
   title: "ログイン / サインアップ | IELTS Creator",
@@ -11,9 +12,9 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, callbackUrl } = await searchParams;
 
   return (
     <AuthShell step="login">
@@ -29,7 +30,7 @@ export default async function LoginPage({
       )}
 
       <div className="mt-6">
-        <CognitoSignInButton />
+        <CognitoSignInButton callbackUrl={sanitizeCallbackUrl(callbackUrl)} />
       </div>
     </AuthShell>
   );
