@@ -1,5 +1,3 @@
-import { simulateDelay } from "@/lib/mock/simulate-delay";
-
 import type { AppSessionUser } from "./types";
 
 // GET /api/v1/me のモックレスポンス。認証必須画面（S-03〜S-07）はすべてこのユーザーで
@@ -9,7 +7,3 @@ export const MOCK_SESSION_USER: AppSessionUser = {
   email: "yuki.t@example.com",
   displayName: "Yuki T.",
 };
-
-export function mockGetMe(): Promise<AppSessionUser> {
-  return simulateDelay(MOCK_SESSION_USER, 200);
-}
