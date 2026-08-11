@@ -30,6 +30,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: { strategy: "jwt" },
+  // 未指定だとNextAuth標準の/api/auth/signin(?error=...)にエラーがリダイレクトされ、
+  // (auth)/login/page.tsxが表示するAuthAlertに実際のOAuthエラーが到達しない（#00039）。
+  pages: { signIn: "/login", error: "/login" },
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
