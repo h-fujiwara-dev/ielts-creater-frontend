@@ -1,3 +1,5 @@
+import type { Session } from "next-auth";
+
 // NextAuth.js Cognitoプロバイダ連携を想定した型定義。
 // 実際の認証方式（Cognito Hosted UIへのOAuthリダイレクト or カスタムAPIによる
 // USER_PASSWORD_AUTH等の直接認証）は、Cognito実接続を行う別チケットで決定する。
@@ -36,4 +38,13 @@ export interface AppSessionUser {
   id: string;
   email: string;
   displayName: string;
+}
+
+// middleware.tsと(protected)/layout.tsxで別々の基準（!req.auth と !session?.user?.id）
+// を使っていた認可判定を1箇所に統一する（#00038）。GET /api/v1/meが未完了のセッション
+// （auth自体は成立しているがapp_userに紐付いていない）は未認証として扱う。
+export function hasAppUser(
+  session: Session | null | undefined
+): session is Session & { user: AppSessionUser } {
+  return Boolean(session?.user?.id);
 }
