@@ -19,7 +19,15 @@ export async function signInViaCognitoHostedUi(
   password: string
 ): Promise<void> {
   await page.waitForURL(COGNITO_DOMAIN_PATTERN);
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/^password$/i).fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.waitForLoadState("load");
+  // Cognito Classic Hosted UIは同一id/name（signInFormUsername等）を持つフォームを
+  // 非表示状態のまま重複してDOMに描画するため、getByLabel/getByRoleでは非表示側に
+  // マッチしうる（strict modeエラーにならず片方に解決されてしまい、fill()が
+  // "element is not visible"のまま無限リトライしてタイムアウトする）。
+  // 実際に表示されている要素をCSSの:visibleで明示的に絞り込む。
+  await page.locator('input[name="username"]:visible').fill(email);
+  await page.locator('input[name="password"]:visible').fill(password);
+  // 送信ボタンは<input type="Submit">（大文字S）で、CSS属性セレクタ [type="submit"] とは
+  // 一致しない。name属性で指定する。
+  await page.locator('input[name="signInSubmitButton"]:visible').click();
 }

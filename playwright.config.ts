@@ -16,6 +16,9 @@ export const AUTH_STORAGE_STATE = path.join(__dirname, "e2e/.auth/user.json");
 // 構成（#00043のパターン2）を前提とする。CIでの実行は対象外（#00047の対象外）。
 export default defineConfig({
   testDir: "./e2e",
+  // 外部ドメイン（Cognito Hosted UI）への初回遷移やAI生成APIの応答待ちがデフォルトの
+  // 30秒を超えることがあるため、実dev環境向けに余裕を持たせる。
+  timeout: 60_000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
