@@ -7,10 +7,15 @@ import { answerAndSubmitCurrentAttempt, generateAndSubmitReadingAttempt } from "
 test.use({ storageState: AUTH_STORAGE_STATE });
 
 test.describe("S-06 履歴一覧からの再受験・結果再確認", () => {
-  test.beforeEach(async ({ page }) => {
-    // 履歴一覧に最低1件表示されるよう、このテスト専用にAttemptを1件作成する
-    // （他specの実行順に依存せず、このファイル単体でも再現できるようにするため）。
+  // 履歴一覧に最低1件表示されるよう、このファイル全体で1件だけAttemptを作成し使い回す
+  // （テストごとに生成するとbackendのdaily問題生成上限[2/日/ユーザー]をこのファイル単独で
+  // 使い切ってしまい、他specとあわせて実行した際にすぐ上限に達するため）。実データは
+  // 同一ユーザーの永続化されたAttemptとしてどちらのテストからも見えるため、生成は1回で十分。
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext({ storageState: AUTH_STORAGE_STATE });
+    const page = await context.newPage();
     await generateAndSubmitReadingAttempt(page);
+    await context.close();
   });
 
   test("「もう一度解く」から同じ問題セットへ再挑戦できる（→S-04）", async ({ page }) => {
