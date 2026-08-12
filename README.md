@@ -88,5 +88,5 @@ npm run test:e2e
 
 - `e2e/core-flow.spec.ts`: ログイン→ダッシュボード→問題生成(Reading)→回答→採点のコアフロー
 - `e2e/history.spec.ts`: 履歴一覧（S-06）からの再受験・結果再確認
-- `e2e/signup.spec.ts`: 新規サインアップの入口確認、および[#00046](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00046_Cognito新規サインアップ時のdisplayName未設定バグ修正.md)の既知バグ（現状の失敗）の検証。#00046修正後は成功系アサーションに更新すること
+- `e2e/signup.spec.ts`: 新規サインアップの入口確認、および[#00046](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00046_Cognito新規サインアップ時のdisplayName未設定バグ修正.md)で修正済みのdisplayNameフォールバック（`name`属性未設定時にemailのローカル部を使う）の検証
 - `e2e/static-pages.spec.ts`: Top / プライバシーポリシー / 利用規約の表示・遷移確認
