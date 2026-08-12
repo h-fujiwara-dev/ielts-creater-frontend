@@ -12,6 +12,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: [path.resolve(import.meta.dirname, "vitest.setup.ts")],
     css: false,
-    exclude: ["node_modules/**", ".next/**"],
+    // e2e/**はPlaywright専用（@playwright/test）のため、Vitestの対象から除外する。
+    exclude: ["node_modules/**", ".next/**", "e2e/**"],
   },
 });
