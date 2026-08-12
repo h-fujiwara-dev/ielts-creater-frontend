@@ -6,6 +6,11 @@ out/
 next-env.d.ts
 *.tsbuildinfo
 
+# Playwright（e2e/.auth/はauth.setup.tsが保存する認証済みstorageState）
+/playwright-report/
+/test-results/
+/e2e/.auth/
+
 # IDE
 .idea/
 .vscode/

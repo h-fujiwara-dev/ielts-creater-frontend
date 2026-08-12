@@ -41,3 +41,52 @@ Cognito App Clientのコールバック URL（`http://localhost:3000/api/auth/ca
 npm install
 npm run dev   # http://localhost:3000
 ```
+
+## E2Eテスト（Playwright）
+
+[#00047](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00047_PlaywrightによるE2Eテストの導入.md)で導入。上記「パターン2: devバックエンド（AWS） + ローカルfrontend」の構成（ローカルfrontend + AWS dev backend + dev Cognito User Pool）に接続して実行する。CI（GitHub Actions）への組み込みは対象外（別チケットで検討）。
+
+### 事前準備
+
+1. 「パターン2」の`.env.local`設定（`BACKEND_API_ORIGIN`・`COGNITO_*`）を済ませておく
+2. dev Cognito User Poolに、E2E専用のテストユーザーを2種類用意し、`.env.local`に追記する（`.env.example`参照）
+   - `E2E_USER_EMAIL` / `E2E_USER_PASSWORD`: `name`属性を設定済みの正常系ユーザー（コアフロー・履歴一覧のテストで使用）
+   - `E2E_NAMELESS_USER_EMAIL` / `E2E_NAMELESS_USER_PASSWORD`: `name`属性を**未設定のまま**作成したユーザー（[#00046](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00046_Cognito新規サインアップ時のdisplayName未設定バグ修正.md)の既知バグを再現するために使用）
+
+   いずれもAWS管理者権限で作成する（実際のセルフサインアップ・メール確認コード入力の完了までは、確認コードがメール配信される都合上E2Eでは自動化していない）。
+
+   ```bash
+   aws cognito-idp admin-create-user \
+     --user-pool-id <ielts-creater-infraのterraform/envs/devでterraform outputして取得したuser_pool_id> \
+     --username <email> \
+     --user-attributes Name=email,Value=<email> Name=email_verified,Value=true \
+     --message-action SUPPRESS
+
+   aws cognito-idp admin-set-user-password \
+     --user-pool-id <user_pool_id> --username <email> --password <password> --permanent
+
+   # E2E_USER_* のみ、backendのdisplayName検証を通すためnameを設定する
+   # （E2E_NAMELESS_USER_* はこのコマンドを実行せず、name属性を未設定のままにする）
+   aws cognito-idp admin-update-user-attributes \
+     --user-pool-id <user_pool_id> --username <email> --user-attributes Name=name,Value=<display-name>
+   ```
+
+3. Playwrightのブラウザバイナリを未取得の場合は取得する: `npx playwright install chromium`
+
+### 実行
+
+```bash
+npm run dev          # 別ターミナルでfrontendを起動しておく（http://localhost:3000）
+npm run test:e2e
+```
+
+`playwright.config.ts`が`.env.local`を自動読み込みする。実行結果（HTMLレポート、gitignore対象）は`npx playwright show-report`で確認できる。
+
+実dev環境（実Cognito・実backend・実DB・実AI生成API）に対して実行するため、コアフロー・履歴一覧のテストは実行のたびにOpenAI APIへの実リクエスト（費用）が発生する点に注意する。
+
+### カバー範囲
+
+- `e2e/core-flow.spec.ts`: ログイン→ダッシュボード→問題生成(Reading)→回答→採点のコアフロー
+- `e2e/history.spec.ts`: 履歴一覧（S-06）からの再受験・結果再確認
+- `e2e/signup.spec.ts`: 新規サインアップの入口確認、および[#00046](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00046_Cognito新規サインアップ時のdisplayName未設定バグ修正.md)の既知バグ（現状の失敗）の検証。#00046修正後は成功系アサーションに更新すること
+- `e2e/static-pages.spec.ts`: Top / プライバシーポリシー / 利用規約の表示・遷移確認
