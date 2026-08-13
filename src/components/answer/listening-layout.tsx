@@ -28,9 +28,9 @@ export function ListeningLayout({
       <Card>
         <CardContent className="flex flex-col gap-6">
           <AudioPlayer segments={audioSegments} />
-          {questionSet.questionGroups.map((group) => (
+          {questionSet.questionGroups.map((group, index) => (
             <QuestionGroup
-              key={group.formatType}
+              key={group.questions[0]?.id ?? index}
               group={group}
               answers={answers}
               onAnswerChange={onAnswerChange}

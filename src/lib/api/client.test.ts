@@ -1,7 +1,7 @@
 import { getSession } from "next-auth/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { apiGet } from "./client";
+import { apiGet, apiGetBlob } from "./client";
 
 vi.mock("next-auth/react", () => ({
   getSession: vi.fn(),
@@ -65,5 +65,32 @@ describe("apiGet", () => {
     await apiGet("/api/v1/me");
 
     expect(mockGetSession).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("apiGetBlob", () => {
+  it("attaches the Bearer token and returns the response body as a Blob (#00054)", async () => {
+    mockGetSession.mockResolvedValue({ accessToken: "token-abc" } as never);
+    const fetchMock = vi
+      .spyOn(global, "fetch")
+      .mockImplementation(async () => new Response(new Blob(["audio-bytes"]), { status: 200 }));
+
+    const blob = await apiGetBlob("/api/v1/question-sets/1/audio-segments/1/file");
+
+    const init = fetchMock.mock.calls[0][1];
+    expect((init?.headers as Record<string, string>).Authorization).toBe("Bearer token-abc");
+    expect(blob).toBeInstanceOf(Blob);
+  });
+
+  it("throws ApiError when the response is not ok", async () => {
+    mockGetSession.mockResolvedValue(null);
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response(JSON.stringify({ error: "NOT_FOUND", message: "not found" }), {
+          status: 404,
+        })
+    );
+
+    await expect(apiGetBlob("/api/v1/question-sets/1/audio-segments/1/file")).rejects.toThrow();
   });
 });
