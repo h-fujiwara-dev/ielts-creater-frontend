@@ -40,4 +40,27 @@ describe("AudioPlayer", () => {
 
     expect(screen.getByRole("button", { name: "再生" })).toBeDisabled();
   });
+
+  it("updates the elapsed time display on timeupdate once the Blob-backed <audio> element has mounted (#00054)", async () => {
+    stubFetchRoutes([
+      route("GET", SEGMENT_URL, () => new Response(new Blob(["audio-bytes"]), { status: 200 })),
+    ]);
+
+    render(<AudioPlayer segments={SEGMENTS} />);
+
+    const audio = await waitFor(() => {
+      const el = document.querySelector("audio");
+      expect(el).not.toBeNull();
+      return el as HTMLAudioElement;
+    });
+
+    expect(screen.getByText("00:00 / 00:05")).toBeInTheDocument();
+
+    Object.defineProperty(audio, "currentTime", { value: 3, configurable: true });
+    audio.dispatchEvent(new Event("timeupdate"));
+
+    await waitFor(() => {
+      expect(screen.getByText("00:03 / 00:05")).toBeInTheDocument();
+    });
+  });
 });
