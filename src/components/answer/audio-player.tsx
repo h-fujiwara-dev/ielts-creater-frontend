@@ -79,8 +79,10 @@ export function AudioPlayer({ segments }: AudioPlayerProps) {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("ended", handleEnded);
     };
+    // audioSrcがnull→Blob URLに変わるまで<audio>はマウントされない（audioRef.currentが
+    // nullのまま）ため、audioSrcも依存配列に含めて実マウント時に確実に再付与する（#00054）。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [segmentIndex]);
+  }, [segmentIndex, audioSrc]);
 
   useEffect(() => {
     const audio = audioRef.current;
