@@ -3,6 +3,7 @@
 import { Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { apiGetBlob } from "@/lib/api/client";
 import type { AudioSegment } from "@/lib/question-sets/types";
 
 interface AudioPlayerProps {
@@ -17,7 +18,7 @@ function formatTime(ms: number): string {
 }
 
 // 複数の音声セグメントを1つの連続音声として見せるプレイヤー。GET .../audio-segments/{id}/file
-// （backendがローカルファイルを配信、Next.jsのrewritesプロキシ経由）を1セグメントずつ再生し、
+// （backendがS3から配信、Next.jsのrewritesプロキシ経由）を1セグメントずつ再生し、
 // 終了時に自動で次のセグメントへ進める。
 export function AudioPlayer({ segments }: AudioPlayerProps) {
   const sorted = [...segments].sort((a, b) => a.turnIndex - b.turnIndex);
@@ -31,8 +32,31 @@ export function AudioPlayer({ segments }: AudioPlayerProps) {
   const [segmentIndex, setSegmentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
 
   const currentSegment = sorted[segmentIndex];
+  const currentSegmentUrl = currentSegment?.url;
+
+  // GET .../audio-segments/{id}/fileは認証必須のため、<audio src>へ直接APIのURLを
+  // 渡すとブラウザのネイティブリクエストにAuthorizationヘッダーが付かず401になり
+  // 再生できない。認証付きfetchでBlobとして取得しObject URLへ差し替える（#00054）。
+  useEffect(() => {
+    if (!currentSegmentUrl) return;
+
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
+    apiGetBlob(currentSegmentUrl).then((blob) => {
+      if (cancelled) return;
+      objectUrl = URL.createObjectURL(blob);
+      setAudioSrc(objectUrl);
+    });
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [currentSegmentUrl]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -60,9 +84,9 @@ export function AudioPlayer({ segments }: AudioPlayerProps) {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !isPlaying) return;
+    if (!audio || !isPlaying || !audioSrc) return;
     audio.play().catch(() => setIsPlaying(false));
-  }, [segmentIndex, isPlaying]);
+  }, [audioSrc, isPlaying]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -80,11 +104,11 @@ export function AudioPlayer({ segments }: AudioPlayerProps) {
 
   return (
     <div className="flex items-center gap-4 rounded-full bg-brand-navy px-4 py-3 text-white">
-      {currentSegment && <audio ref={audioRef} src={currentSegment.url} preload="metadata" />}
+      {currentSegment && audioSrc && <audio ref={audioRef} src={audioSrc} preload="metadata" />}
       <button
         type="button"
         onClick={togglePlay}
-        disabled={!currentSegment}
+        disabled={!currentSegment || !audioSrc}
         className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-orange text-white disabled:opacity-50"
         aria-label={isPlaying ? "一時停止" : "再生"}
       >

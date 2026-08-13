@@ -37,17 +37,10 @@ function getSessionDeduped(): ReturnType<typeof getSession> {
   return inFlightSession;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const session = await getSessionDeduped();
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...buildBearerHeader(session?.accessToken),
-    ...(init?.headers as Record<string, string> | undefined),
-  };
-
+async function fetchChecked(path: string, init?: RequestInit): Promise<Response> {
   let response: Response;
   try {
-    response = await fetch(path, { ...init, headers });
+    response = await fetch(path, init);
   } catch {
     throw new ApiError(0, {
       error: "NETWORK_ERROR",
@@ -61,11 +54,33 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(response.status, body ?? FALLBACK_ERROR(response.statusText));
   }
 
+  return response;
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const session = await getSessionDeduped();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...buildBearerHeader(session?.accessToken),
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+
+  const response = await fetchChecked(path, { ...init, headers });
+
   if (response.status === 204) {
     return undefined as T;
   }
 
   return (await response.json()) as T;
+}
+
+// <audio src>等のネイティブメディア要素はAuthorizationヘッダーを付与できないため、
+// 認証が必要な音声ファイル配信エンドポイント（#00054）はfetch()でBlobとして取得し、
+// Object URLに変換して使う。
+export async function apiGetBlob(path: string): Promise<Blob> {
+  const session = await getSessionDeduped();
+  const response = await fetchChecked(path, { headers: buildBearerHeader(session?.accessToken) });
+  return response.blob();
 }
 
 export function apiGet<T>(path: string): Promise<T> {

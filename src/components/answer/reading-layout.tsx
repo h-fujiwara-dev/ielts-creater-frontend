@@ -26,9 +26,9 @@ export function ReadingLayout({
 
       <Card>
         <CardContent className="flex flex-col">
-          {questionSet.questionGroups.map((group) => (
+          {questionSet.questionGroups.map((group, index) => (
             <QuestionGroup
-              key={group.formatType}
+              key={group.questions[0]?.id ?? index}
               group={group}
               answers={answers}
               onAnswerChange={onAnswerChange}
