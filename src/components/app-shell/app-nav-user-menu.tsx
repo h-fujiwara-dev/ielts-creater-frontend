@@ -26,6 +26,14 @@ export function AppNavUserMenu({ user }: AppNavUserMenuProps) {
       <span className="hidden text-sm font-semibold text-brand-navy sm:inline">
         {user.displayName}
       </span>
+      {user.isGuest && (
+        <span
+          className="hidden rounded-full bg-brand-orange/15 px-2 py-0.5 text-[11px] font-semibold text-brand-orange sm:inline"
+          title="ゲスト利用中：問題生成の回数に上限があり、データは約24時間で自動削除されます"
+        >
+          ゲスト利用中
+        </span>
+      )}
       <button
         type="button"
         aria-label="ログアウト"
