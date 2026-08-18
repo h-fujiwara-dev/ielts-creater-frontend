@@ -38,6 +38,9 @@ export interface AppSessionUser {
   id: string;
   email: string;
   displayName: string;
+  // ゲスト（#00056）の共有デモアカウントかどうか。trueの場合、生成回数上限・データの
+  // 自動削除についてUI上で案内する（AppNavUserMenu参照）。
+  isGuest: boolean;
 }
 
 // middleware.tsと(protected)/layout.tsxで別々の基準（!req.auth と !session?.user?.id）
