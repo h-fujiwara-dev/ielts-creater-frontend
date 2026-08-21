@@ -26,9 +26,23 @@ describe("AppNavUserMenu (#00041)", () => {
     });
 
     const user = userEvent.setup();
-    render(<AppNavUserMenu user={{ id: "u1", email: "user@example.com", displayName: "Taro" }} />);
+    render(
+      <AppNavUserMenu
+        user={{ id: "u1", email: "user@example.com", displayName: "Taro", isGuest: false }}
+      />
+    );
     await user.click(screen.getByRole("button", { name: "ログアウト" }));
 
     expect(locationStub.href).toBe("/api/auth/cognito-logout");
+  });
+
+  it("shows a guest badge when the user is the shared demo account (#00056)", () => {
+    render(
+      <AppNavUserMenu
+        user={{ id: "guest", email: "guest@example.com", displayName: "Guest", isGuest: true }}
+      />
+    );
+
+    expect(screen.getByText("ゲスト利用中")).toBeInTheDocument();
   });
 });

@@ -11,6 +11,13 @@ declare module "next-auth" {
     // session.user.idを直接使おうとするコードをコンパイル時に検出できるようにする（#00042）。
     user: Partial<AppSessionUser> & DefaultSession["user"];
   }
+
+  // ゲスト（#00056）のCredentialsプロバイダーのauthorize()が返す値。jwtコールバックが
+  // account.access_token（OAuth）の代わりにこちらを読む。
+  interface User {
+    accessToken?: string;
+    idToken?: string;
+  }
 }
 
 declare module "@auth/core/jwt" {
@@ -20,6 +27,7 @@ declare module "@auth/core/jwt" {
     appUserId?: string;
     appUserEmail?: string;
     appUserDisplayName?: string;
+    appUserIsGuest?: boolean;
     appUserFetchAttemptedAt?: number;
   }
 }
