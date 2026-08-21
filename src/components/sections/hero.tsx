@@ -2,6 +2,7 @@ import { Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { GuestSignInButton } from "@/components/auth/guest-sign-in-button";
 import { BlurText } from "@/components/reactbits/blur-text";
 import { DotField } from "@/components/reactbits/dot-field";
 
@@ -50,7 +51,11 @@ export function Hero() {
             >
               ログイン
             </Button>
+            <GuestSignInButton className="cursor-pointer rounded-full border-brand-navy/20 px-6 text-brand-navy transition-colors duration-200 hover:bg-brand-navy/5" />
           </div>
+          <p className="mt-2 text-xs text-brand-navy/50">
+            ゲストは登録不要ですぐに試せます（生成回数に上限あり、データは約24時間で自動削除されます）
+          </p>
         </div>
 
         <div className="motion-reduce:animate-none relative animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:150ms]">

@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Cognito from "next-auth/providers/cognito";
+import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 
 import { BACKEND_API_ORIGIN } from "@/lib/env/backend-api-origin";
@@ -15,6 +16,12 @@ const meResponseSchema = z.object({
   id: z.string(),
   email: z.string(),
   displayName: z.string(),
+  isGuest: z.boolean(),
+});
+
+const guestTokenResponseSchema = z.object({
+  accessToken: z.string(),
+  idToken: z.string().nullish(),
 });
 
 // Cognito Hosted UIへのリダイレクト（Authorization Code + PKCE）でログインする（#00034）。
@@ -31,16 +38,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         params: { scope: "openid email profile aws.cognito.signin.user.admin" },
       },
     }),
+    // ゲスト機能（#00056）。ユーザー入力は不要で、backendのPOST /api/v1/auth/guest-tokenが
+    // 共有デモアカウントのCognitoトークンを発行する。Hosted UIへのリダイレクトは発生しない。
+    Credentials({
+      id: "guest",
+      name: "Guest",
+      credentials: {},
+      async authorize() {
+        const token = await fetchGuestToken();
+        if (!token) {
+          return null;
+        }
+        return { id: "guest", accessToken: token.accessToken, idToken: token.idToken ?? undefined };
+      },
+    }),
   ],
   session: { strategy: "jwt" },
   // 未指定だとNextAuth標準の/api/auth/signin(?error=...)にエラーがリダイレクトされ、
   // (auth)/login/page.tsxが表示するAuthAlertに実際のOAuthエラーが到達しない（#00039）。
   pages: { signIn: "/login", error: "/login" },
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
+    async jwt({ token, account, user }) {
+      if (account?.access_token) {
+        // Cognito Hosted UI（Authorization Code + PKCE、#00034）でのサインイン
         token.accessToken = account.access_token;
         token.idToken = account.id_token;
+      } else if (user?.accessToken) {
+        // ゲスト（#00056）。Credentialsプロバイダーのauthorize()が返したトークンをそのまま使う
+        token.accessToken = user.accessToken;
+        token.idToken = user.idToken;
       }
 
       // GET /api/v1/meはbackend側でapp_userを自動プロビジョニングしつつ、以後のセッションで
@@ -60,6 +86,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.appUserId = me.id;
             token.appUserEmail = me.email;
             token.appUserDisplayName = me.displayName;
+            token.appUserIsGuest = me.isGuest;
           }
         }
       }
@@ -75,6 +102,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // クレーム（token.email/token.name）をフォールバックとして使う（#00038）。
         session.user.email = token.appUserEmail ?? token.email ?? "";
         session.user.displayName = token.appUserDisplayName ?? token.name ?? "";
+        session.user.isGuest = token.appUserIsGuest ?? false;
       }
       return session;
     },
@@ -83,7 +111,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
 async function fetchMe(
   accessToken: string
-): Promise<{ id: string; email: string; displayName: string } | null> {
+): Promise<{ id: string; email: string; displayName: string; isGuest: boolean } | null> {
   let response: Response;
   try {
     response = await fetch(`${BACKEND_API_ORIGIN}/api/v1/me`, {
@@ -104,6 +132,41 @@ async function fetchMe(
   const parsed = meResponseSchema.safeParse(body);
   if (!parsed.success) {
     console.error("[auth] GET /api/v1/me returned an unexpected response shape", parsed.error);
+    return null;
+  }
+
+  return parsed.data;
+}
+
+// ゲスト（#00056）の共有デモアカウントでbackendがInitiateAuthを実行しトークンを発行する。
+// backendのGuestAuthController実装を参照（backendリポジトリ docs/API設計書/POST_auth-guest-token.md）。
+async function fetchGuestToken(): Promise<{
+  accessToken: string;
+  idToken?: string | null;
+} | null> {
+  let response: Response;
+  try {
+    response = await fetch(`${BACKEND_API_ORIGIN}/api/v1/auth/guest-token`, {
+      method: "POST",
+      signal: AbortSignal.timeout(FETCH_ME_TIMEOUT_MS),
+    });
+  } catch (error) {
+    console.error("[auth] POST /api/v1/auth/guest-token failed (network error / timeout)", error);
+    return null;
+  }
+
+  if (!response.ok) {
+    console.error(`[auth] POST /api/v1/auth/guest-token returned ${response.status}`);
+    return null;
+  }
+
+  const body = await safeJson(response);
+  const parsed = guestTokenResponseSchema.safeParse(body);
+  if (!parsed.success) {
+    console.error(
+      "[auth] POST /api/v1/auth/guest-token returned an unexpected response shape",
+      parsed.error
+    );
     return null;
   }
 
