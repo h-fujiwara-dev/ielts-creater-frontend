@@ -31,6 +31,7 @@ interface CapturedAuthConfig {
   // internally at NextAuth init time, which we bypass by mocking NextAuth itself.
   providers: Array<{
     id?: string;
+    authorization?: { url?: string; params?: { scope?: string } };
     options?: {
       id?: string;
       authorize?: () => Promise<{ id: string; accessToken?: string; idToken?: string } | null>;
@@ -54,10 +55,16 @@ const nextAuthMock = vi.fn<(config: unknown) => Record<string, unknown>>(() => (
 }));
 
 vi.mock("next-auth", () => ({ default: nextAuthMock }));
-vi.mock("next-auth/providers/cognito", () => ({ default: vi.fn(() => ({ id: "cognito" })) }));
+// 渡された設定（id/authorization等）をそのまま素通しする。固定で{id: "cognito"}を返す
+// 実装のままだと、#00062で追加した2つ目のCognitoプロバイダ（id: "cognito-signup"）が
+// 区別できなくなってしまう。
+vi.mock("next-auth/providers/cognito", () => ({
+  default: vi.fn((config: { id?: string }) => ({ id: "cognito", ...config })),
+}));
 
 beforeEach(() => {
   delete process.env.BACKEND_API_ORIGIN;
+  delete process.env.COGNITO_HOSTED_UI_DOMAIN;
 });
 
 async function loadAuthConfig(): Promise<CapturedAuthConfig> {
@@ -75,6 +82,34 @@ describe("auth config (#00039)", () => {
       expect.objectContaining({
         pages: expect.objectContaining({ signIn: "/login", error: "/login" }),
       })
+    );
+  });
+});
+
+describe("Cognito providers (#00062)", () => {
+  it("keeps the default Cognito provider pointed at the standard OIDC authorize endpoint", async () => {
+    const { providers } = await loadAuthConfig();
+
+    const signInProvider = providers.find((p) => p.id === "cognito");
+
+    expect(signInProvider).toBeDefined();
+    expect(signInProvider?.authorization?.url).toBeUndefined();
+    expect(signInProvider?.authorization?.params?.scope).toBe(
+      "openid email profile aws.cognito.signin.user.admin"
+    );
+  });
+
+  it("adds a cognito-signup provider pointed at the Cognito Hosted UI /signup endpoint", async () => {
+    process.env.COGNITO_HOSTED_UI_DOMAIN = "ielts-creater-dev.auth.ap-northeast-1.amazoncognito.com";
+    const { providers } = await loadAuthConfig();
+
+    const signUpProvider = providers.find((p) => p.id === "cognito-signup");
+
+    expect(signUpProvider?.authorization?.url).toBe(
+      "https://ielts-creater-dev.auth.ap-northeast-1.amazoncognito.com/signup"
+    );
+    expect(signUpProvider?.authorization?.params?.scope).toBe(
+      "openid email profile aws.cognito.signin.user.admin"
     );
   });
 });

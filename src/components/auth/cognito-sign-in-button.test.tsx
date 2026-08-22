@@ -52,4 +52,21 @@ describe("CognitoSignInButton", () => {
 
     expect(signIn).toHaveBeenCalledWith("cognito", { callbackUrl: "/history" });
   });
+
+  it('calls signIn("cognito-signup") and shows the signup label when mode="signup" (#00062)', async () => {
+    vi.mocked(signIn).mockResolvedValueOnce({
+      error: undefined,
+      code: undefined,
+      status: 200,
+      ok: true,
+      url: null,
+    });
+    const user = userEvent.setup();
+    render(<CognitoSignInButton mode="signup" />);
+
+    const button = screen.getByRole("button", { name: "Cognitoで新規登録" });
+    await user.click(button);
+
+    expect(signIn).toHaveBeenCalledWith("cognito-signup", { callbackUrl: "/dashboard" });
+  });
 });

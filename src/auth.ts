@@ -28,14 +28,32 @@ const guestTokenResponseSchema = z.object({
 // aws.cognito.signin.user.adminスコープは、backend UserProvisioningServiceがCognitoの
 // GetUser APIでプロフィール属性(email等)を取得するために必須
 // （infraリポジトリ terraform/modules/cognito と対）。
+const COGNITO_SCOPE = "openid email profile aws.cognito.signin.user.admin";
+const cognitoSharedConfig = {
+  clientId: process.env.COGNITO_CLIENT_ID ?? "",
+  clientSecret: process.env.COGNITO_CLIENT_SECRET ?? "",
+  issuer: process.env.COGNITO_ISSUER ?? "",
+};
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Cognito({
-      clientId: process.env.COGNITO_CLIENT_ID ?? "",
-      clientSecret: process.env.COGNITO_CLIENT_SECRET ?? "",
-      issuer: process.env.COGNITO_ISSUER ?? "",
+      ...cognitoSharedConfig,
       authorization: {
-        params: { scope: "openid email profile aws.cognito.signin.user.admin" },
+        params: { scope: COGNITO_SCOPE },
+      },
+    }),
+    // 「無料ではじめる」ボタン（#00062）。Cognito Hosted UIの/signupエンドポイントは
+    // /oauth2/authorizeと同じパラメータを受け付ける直リンクで、サインアップフォームを
+    // 直接表示する（AWS公式ドキュメント）。token/userinfo/jwks等はissuerのOIDC discovery
+    // から解決される共通のものがそのまま使われ、authorizationのurl/paramsだけが上書きされる。
+    Cognito({
+      id: "cognito-signup",
+      name: "Cognito Signup",
+      ...cognitoSharedConfig,
+      authorization: {
+        url: `https://${process.env.COGNITO_HOSTED_UI_DOMAIN}/signup`,
+        params: { scope: COGNITO_SCOPE },
       },
     }),
     // ゲスト機能（#00056）。ユーザー入力は不要で、backendのPOST /api/v1/auth/guest-tokenが
