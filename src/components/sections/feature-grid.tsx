@@ -11,8 +11,13 @@ import { Button } from "@/components/ui/button";
 import { SpotlightCard } from "@/components/reactbits/spotlight-card";
 import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 import { featureGrid } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
 
 const icons = [Sparkles, Volume2, CheckCircle2, MessageSquareText, History, BarChart3];
+
+// Two "flagship" tiles (index 0 and 5) span 2 columns on large screens for an
+// asymmetric bento layout; the remaining four stay single-column.
+const bentoSpan = ["lg:col-span-2", "", "", "", "", "lg:col-span-2"];
 
 export function FeatureGrid() {
   return (
@@ -27,19 +32,36 @@ export function FeatureGrid() {
           </h2>
         </RevealOnScroll>
 
-        <div className="mt-12 grid gap-x-8 gap-y-10 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {featureGrid.map((f, i) => {
             const Icon = icons[i];
+            const isLarge = bentoSpan[i] !== "";
             return (
-              <RevealOnScroll key={f.title} delay={i * 80}>
+              <RevealOnScroll key={f.title} delay={i * 80} className={bentoSpan[i]}>
                 <SpotlightCard
-                  className="group flex flex-col items-start gap-3 rounded-2xl p-3 transition-colors duration-200"
+                  tilt
+                  className={cn(
+                    "group flex h-full flex-col items-start gap-3 rounded-2xl transition-colors duration-200",
+                    isLarge ? "p-6" : "p-3",
+                  )}
                   spotlightColor="rgba(249, 115, 22, 0.10)"
                 >
-                  <div className="flex size-11 items-center justify-center rounded-xl bg-white text-brand-navy shadow-sm transition-shadow duration-200 group-hover:shadow-md">
-                    <Icon className="size-5" />
+                  <div
+                    className={cn(
+                      "flex items-center justify-center rounded-xl bg-white text-brand-navy shadow-sm transition-shadow duration-200 group-hover:shadow-md",
+                      isLarge ? "size-14" : "size-11",
+                    )}
+                  >
+                    <Icon className={isLarge ? "size-6" : "size-5"} />
                   </div>
-                  <h3 className="font-semibold text-brand-navy">{f.title}</h3>
+                  <h3
+                    className={cn(
+                      "font-semibold text-brand-navy",
+                      isLarge && "text-lg",
+                    )}
+                  >
+                    {f.title}
+                  </h3>
                   <p className="text-sm text-brand-navy/70">{f.description}</p>
                 </SpotlightCard>
               </RevealOnScroll>

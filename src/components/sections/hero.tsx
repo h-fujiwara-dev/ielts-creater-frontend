@@ -3,13 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GuestSignInButton } from "@/components/auth/guest-sign-in-button";
+import { MagneticButton } from "@/components/motion/magnetic-button";
 import { BlurText } from "@/components/reactbits/blur-text";
 import { DotField } from "@/components/reactbits/dot-field";
+import { GradientMesh } from "@/components/reactbits/gradient-mesh";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative isolate overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-10">
+        <GradientMesh />
         <DotField />
       </div>
 
@@ -34,14 +37,16 @@ export function Hero() {
             トピックと難易度を選ぶだけ。Reading・Listeningの練習問題をAIが自動生成し、自動採点・解説・学習履歴の記録までワンストップで。
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button
-              size="lg"
-              render={<Link href="/login?step=signup" />}
-              nativeButton={false}
-              className="cursor-pointer rounded-full bg-brand-navy px-6 text-white shadow-sm transition-all duration-200 hover:bg-brand-navy-light hover:shadow-md"
-            >
-              無料ではじめる
-            </Button>
+            <MagneticButton>
+              <Button
+                size="lg"
+                render={<Link href="/login?step=signup" />}
+                nativeButton={false}
+                className="cursor-pointer rounded-full bg-brand-navy px-6 text-white shadow-sm transition-all duration-200 hover:bg-brand-navy-light hover:shadow-md"
+              >
+                無料ではじめる
+              </Button>
+            </MagneticButton>
             <Button
               variant="outline"
               size="lg"
