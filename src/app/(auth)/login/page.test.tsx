@@ -59,4 +59,38 @@ describe("LoginPage (S-02)", () => {
 
     expect(signIn).toHaveBeenCalledWith("cognito", { callbackUrl: "/dashboard" });
   });
+
+  it('shows the signup heading and calls signIn("cognito-signup") when step=signup (#00062)', async () => {
+    vi.mocked(signIn).mockResolvedValueOnce({
+      error: undefined,
+      code: undefined,
+      status: 200,
+      ok: true,
+      url: null,
+    });
+    const user = userEvent.setup();
+    render(await LoginPage({ searchParams: Promise.resolve({ step: "signup" }) }));
+
+    expect(screen.getByRole("heading", { name: "アカウントを作成" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Cognitoで新規登録" }));
+
+    expect(signIn).toHaveBeenCalledWith("cognito-signup", { callbackUrl: "/dashboard" });
+  });
+
+  it('calls signIn("cognito") (not cognito-signup) when step is unset (#00062 regression)', async () => {
+    vi.mocked(signIn).mockResolvedValueOnce({
+      error: undefined,
+      code: undefined,
+      status: 200,
+      ok: true,
+      url: null,
+    });
+    const user = userEvent.setup();
+    render(await LoginPage({ searchParams: Promise.resolve({}) }));
+
+    await user.click(screen.getByRole("button", { name: /Cognitoでログイン/ }));
+
+    expect(signIn).toHaveBeenCalledWith("cognito", { callbackUrl: "/dashboard" });
+  });
 });

@@ -11,6 +11,9 @@ next-env.d.ts
 /test-results/
 /e2e/.auth/
 
+# Vitest coverage（npm run test:coverage）
+/coverage/
+
 # IDE
 .idea/
 .vscode/

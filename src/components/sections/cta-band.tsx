@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/motion/magnetic-button";
 import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 
 export function CtaBand() {
@@ -22,13 +23,15 @@ export function CtaBand() {
           トピックを選ぶだけ、1分で最初の問題が完成します。
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <Button
-            render={<Link href="/login?step=signup" />}
-            nativeButton={false}
-            className="cursor-pointer rounded-full bg-brand-orange px-6 text-brand-navy shadow-sm transition-all duration-200 hover:bg-brand-orange/90 hover:shadow-md"
-          >
-            無料ではじめる
-          </Button>
+          <MagneticButton>
+            <Button
+              render={<Link href="/login?step=signup" />}
+              nativeButton={false}
+              className="cursor-pointer rounded-full bg-brand-orange px-6 text-brand-navy shadow-sm transition-all duration-200 hover:bg-brand-orange/90 hover:shadow-md"
+            >
+              無料ではじめる
+            </Button>
+          </MagneticButton>
           <Button
             variant="outline"
             render={<Link href="/login" />}
