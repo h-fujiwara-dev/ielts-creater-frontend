@@ -5,6 +5,7 @@ import { Insights } from "@/components/sections/insights";
 import { SiteFooter } from "@/components/sections/site-footer";
 import { SiteHeader } from "@/components/sections/site-header";
 import { Story } from "@/components/sections/story";
+import { TechMarquee } from "@/components/sections/tech-marquee";
 import { TrustBand } from "@/components/sections/trust-band";
 import { TwoColCta } from "@/components/sections/two-col-cta";
 
@@ -19,6 +20,7 @@ export default function Home() {
       <TwoColCta />
       <CtaBand />
       <Insights />
+      <TechMarquee />
       <SiteFooter />
     </div>
   );

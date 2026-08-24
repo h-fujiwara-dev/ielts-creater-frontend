@@ -1,0 +1,10 @@
+.gradient-mesh-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.gradient-mesh-fallback {
+  position: absolute;
+  inset: 0;
+}
