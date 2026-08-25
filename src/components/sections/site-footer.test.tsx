@@ -14,6 +14,14 @@ describe("SiteFooter (S-01)", () => {
     expect(screen.getByRole("link", { name: "利用規約" })).toHaveAttribute("href", "/terms");
   });
 
+  it("links the top page sections with a root-absolute path so navigation works from other pages", () => {
+    render(<SiteFooter />);
+
+    expect(screen.getByRole("link", { name: "特長" })).toHaveAttribute("href", "/#features");
+    expect(screen.getByRole("link", { name: "使い方" })).toHaveAttribute("href", "/#how-it-works");
+    expect(screen.getByRole("link", { name: "出題形式" })).toHaveAttribute("href", "/#formats");
+  });
+
   it("does not render dangling social icon buttons with no href (no external URLs exist yet)", () => {
     render(<SiteFooter />);
 

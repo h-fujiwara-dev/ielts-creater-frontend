@@ -22,6 +22,18 @@ describe("SiteHeader (S-01)", () => {
     expect(signupCtas[0]).toHaveAttribute("href", "/login?step=signup");
   });
 
+  it("links the top page sections with a root-absolute path so navigation works from other pages", () => {
+    render(<SiteHeader />);
+
+    // Mobile menu is collapsed by default, so only the desktop nav links are in the DOM.
+    expect(screen.getByRole("link", { name: "特長" })).toHaveAttribute("href", "/#features");
+    expect(screen.getByRole("link", { name: "使い方" })).toHaveAttribute(
+      "href",
+      "/#how-it-works",
+    );
+    expect(screen.getByRole("link", { name: "出題形式" })).toHaveAttribute("href", "/#formats");
+  });
+
   it("toggles the mobile menu open and closed", async () => {
     const user = userEvent.setup();
     render(<SiteHeader />);

@@ -40,3 +40,35 @@ test("S-08/S-09の「Topへ戻る」からTopページに戻れる", async ({ pa
   await page.getByRole("link", { name: "Topへ戻る" }).click();
   await expect(page).toHaveURL("/");
 });
+
+test("S-08 プライバシーポリシー画面のフッターからTopページの各セクションへ遷移できる", async ({
+  page,
+}) => {
+  // フッター（contentinfoランドマーク）に絞り込む。AuthHeaderにはナビリンクが無いため
+  // このページ内で「特長」等のリンクはフッターにしか存在しない。
+  const footer = page.getByRole("contentinfo");
+
+  await page.goto("/privacy");
+  await footer.getByRole("link", { name: "特長" }).click();
+  await expect(page).toHaveURL(/\/#features$/);
+  await expect(page.locator("#features")).toBeVisible();
+
+  await page.goto("/privacy");
+  await footer.getByRole("link", { name: "使い方" }).click();
+  await expect(page).toHaveURL(/\/#how-it-works$/);
+  await expect(page.locator("#how-it-works")).toBeVisible();
+
+  await page.goto("/privacy");
+  await footer.getByRole("link", { name: "出題形式" }).click();
+  await expect(page).toHaveURL(/\/#formats$/);
+  await expect(page.locator("#formats")).toBeVisible();
+});
+
+test("S-09 利用規約画面のフッターからもTopページのセクションへ遷移できる", async ({ page }) => {
+  const footer = page.getByRole("contentinfo");
+
+  await page.goto("/terms");
+  await footer.getByRole("link", { name: "特長" }).click();
+  await expect(page).toHaveURL(/\/#features$/);
+  await expect(page.locator("#features")).toBeVisible();
+});

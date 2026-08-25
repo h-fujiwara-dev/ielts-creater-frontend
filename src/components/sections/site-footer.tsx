@@ -1,11 +1,7 @@
 import { BookOpenCheck } from "lucide-react";
 import Link from "next/link";
 
-const navLinks = [
-  { label: "特長", href: "#features" },
-  { label: "使い方", href: "#how-it-works" },
-  { label: "出題形式", href: "#formats" },
-];
+import { navLinks } from "@/components/sections/nav-links";
 
 const legalLinks = [
   { label: "プライバシーポリシー", href: "/privacy" },
@@ -31,13 +27,13 @@ export function SiteFooter() {
             <p className="text-sm font-semibold text-white/90">ナビゲーション</p>
             <nav className="mt-4 flex flex-col gap-2.5">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.href}
                   href={link.href}
                   className="cursor-pointer text-sm text-white/60 transition-colors duration-200 hover:text-white"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>
