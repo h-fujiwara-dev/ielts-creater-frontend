@@ -52,11 +52,11 @@ export function Hero() {
               size="lg"
               render={<Link href="/login" />}
               nativeButton={false}
-              className="cursor-pointer rounded-full border-brand-navy/20 px-6 text-brand-navy transition-colors duration-200 hover:bg-brand-navy/5"
+              className="cursor-pointer rounded-full border-brand-navy/20 bg-white px-6 text-brand-navy shadow-sm transition-all duration-200 hover:border-brand-navy/40 hover:bg-brand-lavender hover:shadow-md"
             >
               ログイン
             </Button>
-            <GuestSignInButton className="cursor-pointer rounded-full border-brand-navy/20 px-6 text-brand-navy transition-colors duration-200 hover:bg-brand-navy/5" />
+            <GuestSignInButton className="cursor-pointer rounded-full border-brand-navy/20 bg-white px-6 text-brand-navy shadow-sm transition-all duration-200 hover:border-brand-navy/40 hover:bg-brand-lavender hover:shadow-md" />
           </div>
           <p className="mt-2 text-xs text-brand-navy/50">
             ゲストは登録不要ですぐに試せます（生成回数に上限あり、データは約24時間で自動削除されます）
