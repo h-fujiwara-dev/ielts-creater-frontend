@@ -46,7 +46,7 @@ void main() {
   // Kept translucent (composited over the page's own cream background) so the
   // flowing colors read as an ambient wash behind the Hero copy rather than a
   // saturated block that would fail text-contrast against brand-navy headings.
-  fragColor = vec4(col, 0.16);
+  fragColor = vec4(col, 0.08);
 }`;
 
 function hexToRgb01(hex: string): [number, number, number] {
@@ -74,7 +74,7 @@ interface GradientMeshProps {
 }
 
 export const GradientMesh = memo(function GradientMesh({
-  colorA = "#0f172a",
+  colorA = "#fffdf9",
   colorB = "#f97316",
   colorC = "#4640de",
   className = "",
@@ -206,7 +206,7 @@ export const GradientMesh = memo(function GradientMesh({
         className="gradient-mesh-fallback"
         style={{
           background: `linear-gradient(135deg, ${colorA}, ${colorC} 55%, ${colorB})`,
-          opacity: 0.16,
+          opacity: 0.08,
         }}
       />
       {!prefersReducedMotion && (
