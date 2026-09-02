@@ -25,8 +25,8 @@ export function SiteFooter() {
               aria-hidden="true"
               className="mt-5 flex h-6 items-end gap-1"
             >
-              {Array.from({ length: 9 }, (_, i) => {
-                const isFocus = i === 8;
+              {Array.from({ length: 8 }, (_, i) => {
+                const isFocus = i === 7;
                 return (
                   <span
                     key={i}

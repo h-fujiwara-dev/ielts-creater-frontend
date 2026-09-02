@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Group } from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Lightformer, PerformanceMonitor } from "@react-three/drei";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { gsap } from "@/lib/gsap";
 import { BAND_COUNT, BandScoreSlab, SLAB_STEP_X, SLAB_STEP_Y } from "./band-score-slab";
 
@@ -129,7 +128,17 @@ function useSceneActive(containerRef: React.RefObject<HTMLDivElement | null>) {
   return active;
 }
 
-export function BandScoreScene() {
+interface BandScoreSceneProps {
+  // Called once if the WebGL context is lost after the scene has mounted
+  // (observed in real-world dev-mode testing, likely a driver/resource issue
+  // aggravated by React Strict Mode's intentional double-mount). The parent
+  // (HeroScene) swaps to the static fallback permanently on this signal,
+  // matching the existing binary reduced-motion/no-WebGL2 fallback pattern
+  // rather than attempting a live in-place recovery.
+  onContextLost?: () => void;
+}
+
+export function BandScoreScene({ onContextLost }: BandScoreSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dpr, setDpr] = useState<[number, number]>([1, 2]);
   const active = useSceneActive(containerRef);
@@ -139,8 +148,14 @@ export function BandScoreScene() {
       <Canvas
         frameloop="demand"
         dpr={dpr}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
+        gl={{ antialias: true }}
         camera={{ position: [3.4, 2.6, 6], fov: 32 }}
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener("webglcontextlost", (e) => {
+            e.preventDefault();
+            onContextLost?.();
+          });
+        }}
       >
         <InvalidatePump active={active} />
         <PerformanceMonitor onDecline={() => setDpr([1, 1])} onIncline={() => setDpr([1, 2])} />
@@ -153,9 +168,6 @@ export function BandScoreScene() {
           <Lightformer intensity={1.5} color="#f97316" position={[4, 0, 3]} scale={[3, 3, 1]} />
         </Environment>
         <Staircase />
-        <EffectComposer>
-          <Bloom luminanceThreshold={0.65} luminanceSmoothing={0.2} intensity={1.1} mipmapBlur />
-        </EffectComposer>
       </Canvas>
     </div>
   );

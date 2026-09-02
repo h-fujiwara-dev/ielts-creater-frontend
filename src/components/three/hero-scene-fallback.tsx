@@ -1,4 +1,7 @@
-const BAND_COUNT = 9;
+// Kept independent of band-score-slab.tsx's own BAND_COUNT (same value, 8)
+// so this fallback never pulls in that module's three.js/drei imports —
+// doing so would defeat the point of dynamically importing BandScoreScene.
+const BAND_COUNT = 8;
 
 // Static SVG stand-in for BandScoreScene — no canvas, no rAF, no GSAP. Shown
 // under prefers-reduced-motion, when WebGL2 is unavailable, and momentarily

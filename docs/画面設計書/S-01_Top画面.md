@@ -36,11 +36,12 @@
 
 ### 3Dビジュアル: Band Staircase（ヒーロー背景）
 
-IELTSのバンドスコア（1〜9）を、React Three Fiberによるガラス質スラブの階段として表現する。#00066までのWebGLメッシュグラデーション（`GradientMesh`）・カーソル反応パーティクル（`DotField`）は廃止し、本格的な3D表現に置き換えた。
+IELTSのバンドスコア（1〜8。8はこのプロダクトが掲げる現実的な目標スコアであり、理論上の満点9ではなくあえて8を到達点とする）を、React Three Fiberによるガラス質スラブの階段として表現する。#00066までのWebGLメッシュグラデーション（`GradientMesh`）・カーソル反応パーティクル（`DotField`）は廃止し、本格的な3D表現に置き換えた。
 
-- バンド1〜8は`meshPhysicalMaterial`（navy寄りガラス）、バンド9のみdrei `MeshTransmissionMaterial`（ブランドオレンジ、高品質ガラスシェーダー）+ 専用`pointLight`で発光させ、到達目標を視覚的に一点集中させる
+- バンド1〜7は`meshPhysicalMaterial`（navy寄りガラス）、バンド8のみdrei `MeshTransmissionMaterial`（ブランドオレンジ、高品質ガラスシェーダー）+ 専用`pointLight`で発光させ、到達目標を視覚的に一点集中させる
 - カーソル追従パララックス（タッチデバイスでは無効化）、GSAP ScrollTrigger によるスクロール連動ビルドアップ、`Float`による控えめなアイドルアニメーションを実装
-- `prefers-reduced-motion`またはWebGL2非対応環境では、3DシーンのJSチャンク自体をロードせず、静的SVGの9本バー（`HeroSceneFallback`）にフォールバックする
+- `prefers-reduced-motion`またはWebGL2非対応環境では、3DシーンのJSチャンク自体をロードせず、静的SVGの8本バー（`HeroSceneFallback`）にフォールバックする
+- 実行中にWebGLコンテキストロスト（`webglcontextlost`）が発生した場合も同じ静的フォールバックに切り替える。開発中、`@react-three/postprocessing`（`EffectComposer`+`Bloom`）を含む構成でdevモード（React Strict Modeの二重マウント）実機テスト時にコンテキストロストが再現したため、GPU負荷を抑える目的でBloom/EffectComposerは撤去した
 - 実装は`src/components/three/`配下（`band-score-scene.tsx` / `band-score-slab.tsx` / `hero-scene.tsx` / `hero-scene-fallback.tsx`）
 
 ## 画面構成要素
@@ -58,7 +59,7 @@ IELTSのバンドスコア（1〜9）を、React Three Fiberによるガラス�
 | 7 | CTAバンド | 「今すぐ無料でIELTS対策を始めよう」＋CTA2種 |
 | 8 | 使い方（3ステップ） | STEP1 トピックと難易度を選ぶ／STEP2 AIが問題を生成／STEP3 回答して結果を確認。各カード上部にGeist Monoの数字ウォーターマーク（01/02/03）を配置し、ヒーローのバンド数字と視覚的に呼応させる |
 | 9 | Powered byマーキー | 採用技術（Next.js、React、TypeScript、Tailwind CSS、Three.js、GSAP、OpenAI、Vercel）のロゴを横スクロールでアピールする帯。`prefers-reduced-motion`時は静的な折り返し表示に切り替える |
-| 10 | フッター | タグライン「解いた分だけ、新しい問題に。」＋ヒーローのバンド階段を想起させる9本の昇順バー＋ロゴ＋コピーライト＋[プライバシーポリシー（S-08）](./S-08_プライバシーポリシー画面.md)・[利用規約（S-09）](./S-09_利用規約画面.md)へのリンク |
+| 10 | フッター | タグライン「解いた分だけ、新しい問題に。」＋ヒーローのバンド階段を想起させる8本の昇順バー＋ロゴ＋コピーライト＋[プライバシーポリシー（S-08）](./S-08_プライバシーポリシー画面.md)・[利用規約（S-09）](./S-09_利用規約画面.md)へのリンク |
 
 ヘッダーの「機能／使い方／よくある質問」ナビリンクおよびフッターのサイト内リンク集・ニュースレター登録は、リンク先ページが存在しない段階では実体のないUIになるため、Phase 1では設置しない方針とした（各セクションへのCTAボタンでS-02への導線のみを提供する）。一方でフッターのプライバシーポリシー・利用規約リンクは、[#00008](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00008_プライバシーポリシー利用規約画面の追加.md)でS-08/S-09の機能仕様・本文案が確定済みのため、実装時は実際のリンク先として設置する。
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { useWebglSupported } from "@/lib/use-webgl-support";
@@ -16,10 +17,11 @@ const BandScoreScene = dynamic(
 export function HeroScene() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const webglSupported = useWebglSupported();
+  const [contextLost, setContextLost] = useState(false);
 
-  if (prefersReducedMotion || !webglSupported) {
+  if (prefersReducedMotion || !webglSupported || contextLost) {
     return <HeroSceneFallback />;
   }
 
-  return <BandScoreScene />;
+  return <BandScoreScene onContextLost={() => setContextLost(true)} />;
 }

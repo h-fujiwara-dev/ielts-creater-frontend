@@ -28,7 +28,7 @@ describe("HeroScene", () => {
   it("renders the static fallback under prefers-reduced-motion (test default), never requesting the 3D chunk", async () => {
     render(<HeroScene />);
 
-    expect(await screen.findByText("9")).toBeInTheDocument();
+    expect(await screen.findByText("8")).toBeInTheDocument();
     expect(screen.queryByTestId("band-score-scene")).not.toBeInTheDocument();
   });
 
@@ -49,7 +49,7 @@ describe("HeroScene", () => {
 
     render(<HeroScene />);
 
-    expect(await screen.findByText("9")).toBeInTheDocument();
+    expect(await screen.findByText("8")).toBeInTheDocument();
     expect(screen.queryByTestId("band-score-scene")).not.toBeInTheDocument();
   });
 

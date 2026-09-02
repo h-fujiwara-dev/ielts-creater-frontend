@@ -4,7 +4,7 @@ import { forwardRef } from "react";
 import type { Group } from "three";
 import { MeshTransmissionMaterial, RoundedBox, Text } from "@react-three/drei";
 
-export const BAND_COUNT = 9;
+export const BAND_COUNT = 8;
 export const SLAB_STEP_X = 0.55;
 export const SLAB_STEP_Y = 0.34;
 
@@ -18,10 +18,11 @@ interface BandScoreSlabProps {
   isFocus: boolean;
 }
 
-// One glass step of the "Band Staircase". Bands 1-8 use a cheap navy
-// meshPhysicalMaterial; band 9 alone gets drei's more expensive
-// MeshTransmissionMaterial (tinted brand-orange) plus its own point light —
-// the perf/quality budget is spent on the single focal slab, not all nine.
+// One glass step of the "Band Staircase" (1〜8; IELTS band 8 is this
+// product's realistic target score, not the theoretical max of 9). Bands 1-7
+// use a cheap navy meshPhysicalMaterial; band 8 alone gets drei's more
+// expensive MeshTransmissionMaterial (tinted brand-orange) plus its own point
+// light — the perf/quality budget is spent on the single focal slab.
 export const BandScoreSlab = forwardRef<Group, BandScoreSlabProps>(function BandScoreSlab(
   { band, isFocus },
   ref,
