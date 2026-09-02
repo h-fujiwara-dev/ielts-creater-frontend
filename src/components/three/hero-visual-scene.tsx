@@ -3,34 +3,45 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Group } from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Float, Lightformer, PerformanceMonitor } from "@react-three/drei";
+import { Environment, Float, Lightformer, PerformanceMonitor, RoundedBox } from "@react-three/drei";
 import { gsap } from "@/lib/gsap";
 
 const PARALLAX_MAX_RAD = 0.08;
 
 function Headphones() {
   return (
-    <group position={[-1.3, 0.15, 0]}>
+    <group position={[-1.15, 0.15, 0]}>
       {/* Headband: half-torus, its centerline circle already arcs from the
           left ear cup, over the top, to the right ear cup. */}
       <mesh>
         <torusGeometry args={[0.85, 0.07, 16, 48, Math.PI]} />
         <meshPhysicalMaterial
-          color="#1e293b"
-          transmission={0.4}
+          color="#334155"
+          transmission={0.3}
           thickness={0.3}
-          roughness={0.25}
+          roughness={0.15}
           ior={1.4}
-          clearcoat={0.5}
+          clearcoat={0.8}
+          clearcoatRoughness={0.1}
         />
       </mesh>
       {[-1, 1].map((side) => (
         <group key={side} position={[0.85 * side, 0, 0]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.3, 0.32, 0.22, 32]} />
-            <meshPhysicalMaterial color="#1e293b" roughness={0.3} clearcoat={0.4} ior={1.4} />
+            <cylinderGeometry args={[0.3, 0.34, 0.24, 32]} />
+            <meshPhysicalMaterial
+              color="#334155"
+              roughness={0.18}
+              clearcoat={0.7}
+              clearcoatRoughness={0.15}
+              ior={1.4}
+            />
           </mesh>
-          <mesh position={[0, 0, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh position={[0, 0, 0.13]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.24, 0.24, 0.02, 32]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.6} />
+          </mesh>
+          <mesh position={[0, 0, 0.135]} rotation={[Math.PI / 2, 0, 0]}>
             <torusGeometry args={[0.2, 0.035, 12, 24]} />
             <meshBasicMaterial color="#f97316" toneMapped={false} />
           </mesh>
@@ -43,12 +54,16 @@ function Headphones() {
 function BookPage({ sign }: { sign: 1 | -1 }) {
   return (
     <group rotation={[0, 0.35 * sign, 0]}>
-      <mesh position={[0.36 * sign, 0, 0]}>
-        <boxGeometry args={[0.72, 0.95, 0.03]} />
-        <meshStandardMaterial color="#fffdf9" roughness={0.75} />
+      <RoundedBox args={[0.72, 0.95, 0.05]} radius={0.02} smoothness={3} position={[0.36 * sign, 0, 0]}>
+        <meshStandardMaterial color="#fffdf9" roughness={0.7} />
+      </RoundedBox>
+      {/* Stacked-paper hint at the outer edge, opposite the spine. */}
+      <mesh position={[0.68 * sign, 0, -0.005]}>
+        <boxGeometry args={[0.06, 0.86, 0.038]} />
+        <meshStandardMaterial color="#e7e2d8" roughness={0.9} />
       </mesh>
       {[0.25, 0.05, -0.15].map((y, i) => (
-        <mesh key={i} position={[0.36 * sign, y, 0.02]}>
+        <mesh key={i} position={[0.36 * sign, y, 0.026]}>
           <boxGeometry args={[0.44, 0.035, 0.01]} />
           <meshBasicMaterial color={i === 0 ? "#f97316" : "#94a3b8"} toneMapped={false} />
         </mesh>
@@ -59,13 +74,12 @@ function BookPage({ sign }: { sign: 1 | -1 }) {
 
 function Book() {
   return (
-    <group position={[1.3, -0.1, 0]} rotation={[0.15, 0, 0]}>
+    <group position={[1.15, -0.1, 0]} rotation={[0.15, 0, 0]} scale={1.1}>
       <BookPage sign={-1} />
       <BookPage sign={1} />
-      <mesh>
-        <boxGeometry args={[0.06, 0.95, 0.1]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.4} />
-      </mesh>
+      <RoundedBox args={[0.08, 0.95, 0.12]} radius={0.03} smoothness={3}>
+        <meshStandardMaterial color="#334155" roughness={0.35} metalness={0.1} />
+      </RoundedBox>
     </group>
   );
 }
@@ -208,13 +222,15 @@ export function HeroVisualScene({ onContextLost }: HeroVisualSceneProps) {
       >
         <InvalidatePump active={active} />
         <PerformanceMonitor onDecline={() => setDpr([1, 1])} onIncline={() => setDpr([1, 2])} />
-        <color attach="background" args={["#1e293b"]} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[4, 6, 3]} intensity={1.2} />
+        <color attach="background" args={["#0f172a"]} />
+        <ambientLight intensity={0.45} />
+        <directionalLight position={[4, 6, 3]} intensity={1.3} />
+        <directionalLight position={[-3, 1.5, -4]} intensity={0.6} color="#94a3b8" />
         <Environment resolution={64}>
-          <Lightformer intensity={2} color="#eef1ff" position={[0, 4, -4]} scale={[8, 4, 1]} />
-          <Lightformer intensity={1} color="#4640de" position={[-4, 1, 2]} scale={[4, 4, 1]} />
-          <Lightformer intensity={1.5} color="#f97316" position={[4, 0, 3]} scale={[3, 3, 1]} />
+          <Lightformer intensity={2.2} color="#eef1ff" position={[0, 4, -4]} scale={[8, 4, 1]} />
+          <Lightformer intensity={1.4} color="#4640de" position={[-4, 1, 2]} scale={[4, 4, 1]} />
+          <Lightformer intensity={1.8} color="#f97316" position={[4, 0, 3]} scale={[3, 3, 1]} />
+          <Lightformer intensity={1.2} color="#f8fafc" position={[-2, -1, 3]} scale={[3, 2, 1]} />
         </Environment>
         <HeroObjects />
       </Canvas>
