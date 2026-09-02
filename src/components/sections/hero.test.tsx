@@ -19,7 +19,7 @@ describe("Hero (S-01)", () => {
     const { container } = render(<Hero />);
 
     expect(container.querySelector("canvas")).not.toBeInTheDocument();
-    expect(screen.getByText("8")).toBeInTheDocument();
+    expect(screen.getByText("LISTENING")).toBeInTheDocument();
   });
 
   it("links the CTAs to /login", () => {

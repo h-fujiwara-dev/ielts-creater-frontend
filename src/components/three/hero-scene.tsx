@@ -9,8 +9,8 @@ import { HeroSceneFallback } from "./hero-scene-fallback";
 // Gating happens here, *before* the dynamic import is requested, so the
 // three.js/@react-three/* chunk is never fetched at all under reduced motion
 // or when WebGL2 is unsupported — not just hidden after loading.
-const BandScoreScene = dynamic(
-  () => import("./band-score-scene").then((mod) => mod.BandScoreScene),
+const HeroVisualScene = dynamic(
+  () => import("./hero-visual-scene").then((mod) => mod.HeroVisualScene),
   { ssr: false, loading: () => <HeroSceneFallback /> },
 );
 
@@ -23,5 +23,5 @@ export function HeroScene() {
     return <HeroSceneFallback />;
   }
 
-  return <BandScoreScene onContextLost={() => setContextLost(true)} />;
+  return <HeroVisualScene onContextLost={() => setContextLost(true)} />;
 }
