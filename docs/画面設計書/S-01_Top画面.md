@@ -1,7 +1,7 @@
 # S-01 Top画面
 
-- 更新日: 2026-09-02（TOPページのビジュアル演出モダン化〔#00066〕・Hero視認性改善〔#00068〕を反映）
-- 関連文書: [画面一覧](../画面一覧.md) / [画面遷移図（ielts-createrリポジトリ、完成イメージのスクリーンショット掲載）](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/docs/画面遷移図.md) / [ielts-createrリポジトリ tickets/00005 TOP画面のFigmaデザイン作成](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00005_TOP画面のFigmaデザイン作成.md) / [S-08 プライバシーポリシー画面](./S-08_プライバシーポリシー画面.md) / [S-09 利用規約画面](./S-09_利用規約画面.md)
+- 更新日: 2026-09-02（TOPページの3Dインタラクティブ化全面刷新〔#00074〕を反映。旧演出〔#00066〕・視認性改善〔#00068〕は本改修で置き換え）
+- 関連文書: [画面一覧](../画面一覧.md) / [画面遷移図（ielts-createrリポジトリ、完成イメージのスクリーンショット掲載）](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/docs/画面遷移図.md) / [ielts-createrリポジトリ tickets/00005 TOP画面のFigmaデザイン作成](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00005_TOP画面のFigmaデザイン作成.md) / [ielts-createrリポジトリ tickets/00074 TOPページの3Dインタラクティブ化全面刷新](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00074_TOPページの3Dインタラクティブ化全面刷新.md) / [S-08 プライバシーポリシー画面](./S-08_プライバシーポリシー画面.md) / [S-09 利用規約画面](./S-09_利用規約画面.md)
 
 ## 画面概要
 
@@ -13,23 +13,35 @@
 
 ### カラー
 
+トークン自体は変更せず、ダッシュボード等の認証後画面と共通のブランドトークンを使う。#00074で「ヒーロー・フッターをダーク背景、その他セクションはライト背景」というブックエンド構成に変更した。
+
 | 用途 | カラー | 備考 |
 | --- | --- | --- |
-| ネイビー（基調色・見出し・本文） | `#0F172A` | ボタンhover等は`#1E293B` |
+| ネイビー（基調色・見出し・本文／ヒーロー・フッター背景） | `#0F172A` | ボタンhover等は`#1E293B` |
 | オレンジ（アクセント・主要CTA） | `#F97316` | |
 | ブルー（CTAバンド背景） | `#4640DE` | |
-| ラベンダー（機能グリッド背景） | `#EEF1FF` | |
+| ラベンダー（機能グリッドのカードアクセント） | `#EEF1FF` | #00074でセクション全面塗りからカード単位のアクセントに変更 |
 | クリーム（ベース背景） | `#FFFDF9` | |
 
 ### タイポグラフィ
 
-- 見出し・本文: **Plus Jakarta Sans**（Latin）+ **Noto Sans JP**（日本語）を`next/font/google`で読み込み、レイアウトシフトなしで自己ホスト
+- 見出し・本文: **Geist**（Latin）+ **Zen Kaku Gothic New**（日本語）を`next/font/google`で読み込み、レイアウトシフトなしで自己ホスト（#00074でPlus Jakarta Sans + Noto Sans JPから変更。ルートlayoutでの定義のためS-02〜S-07にも適用される）
+- 数値表現（バンドスコア数字・ステップ番号等）: 既存の**Geist Mono**を「技術的な仕様書」らしいテクスチャとして活用
 
 ### 画像
 
-- ヒーロー・ストーリーセクションの写真はUnsplash APIから取得した実写真を使用（クレジット表記をページ内に明記、Unsplash APIガイドラインに従いダウンロードイベントをトリガー済み）
-  - ヒーロー: Photo by [Wes Hicks](https://unsplash.com/@sickhews) on Unsplash
+- ストーリーセクションの写真はUnsplash APIから取得した実写真を使用（クレジット表記をページ内に明記、Unsplash APIガイドラインに従いダウンロードイベントをトリガー済み）
   - ストーリー: Photo by [Hannah Olinger](https://unsplash.com/@hannaholinger) on Unsplash
+- ヒーローのストック写真は#00074で廃止し、3Dシーン（下記参照）に置き換えた
+
+### 3Dビジュアル: Band Staircase（ヒーロー背景）
+
+IELTSのバンドスコア（1〜9）を、React Three Fiberによるガラス質スラブの階段として表現する。#00066までのWebGLメッシュグラデーション（`GradientMesh`）・カーソル反応パーティクル（`DotField`）は廃止し、本格的な3D表現に置き換えた。
+
+- バンド1〜8は`meshPhysicalMaterial`（navy寄りガラス）、バンド9のみdrei `MeshTransmissionMaterial`（ブランドオレンジ、高品質ガラスシェーダー）+ 専用`pointLight`で発光させ、到達目標を視覚的に一点集中させる
+- カーソル追従パララックス（タッチデバイスでは無効化）、GSAP ScrollTrigger によるスクロール連動ビルドアップ、`Float`による控えめなアイドルアニメーションを実装
+- `prefers-reduced-motion`またはWebGL2非対応環境では、3DシーンのJSチャンク自体をロードせず、静的SVGの9本バー（`HeroSceneFallback`）にフォールバックする
+- 実装は`src/components/three/`配下（`band-score-scene.tsx` / `band-score-slab.tsx` / `hero-scene.tsx` / `hero-scene-fallback.tsx`）
 
 ## 画面構成要素
 
@@ -37,20 +49,20 @@
 
 | # | 要素 | 内容 |
 | --- | --- | --- |
-| 1 | ヘッダー | ロゴ「IELTS Creator」＋ログインボタン。スクロール追従（sticky）＋背景ぼかし |
-| 2 | ヒーロー | 背景にWebGL2シェーダーによるアニメーショングラデーション（GradientMesh）＋ドット柄（DotField）を敷き、アイキャッチ文「AIが、あなた専用のIELTS問題をつくる。」＋見出し「解いた分だけ、新しい問題に出会える。」＋説明文＋CTA3種（無料ではじめる／ログイン／ゲストとして始める、「無料ではじめる」はカーソル追従のマグネット演出付き）＋実写真＋生成中を示す浮遊ステータスカード |
+| 1 | ヘッダー | ロゴ「IELTS Creator」＋ログインボタン。スクロール追従（sticky）＋背景ぼかし。ヒーロー（ダーク背景）表示中は透過ダーク配色、スクロールして通過後はライト配色に切り替わる |
+| 2 | ヒーロー | ダークネイビー背景に3Dシーン「Band Staircase」（下記参照）を敷き、アイキャッチ文「AIが、あなた専用のIELTS問題をつくる。」＋見出し「解いた分だけ、新しい問題に出会える。」＋説明文＋CTA3種（無料ではじめる／ログイン／ゲストとして始める、「無料ではじめる」はカーソル追従のマグネット演出付き）＋生成中を示す浮遊ステータスカード |
 | 3 | ハイライト＋対応出題形式 | 「AI自動生成／自動採点・解説／学習ダッシュボード」の3カード＋対応出題形式バッジ（True/False/Not Given、Multiple Choice、Matching Headings、Sentence Completion、Form/Note Completion） |
 | 4 | ストーリー | 「同じ問題を繰り返す時代は、終わりに。」の訴求文＋実写真 |
-| 5 | 機能グリッド | AI自動生成／音声問題対応／自動採点／解説つき／受験履歴／スコア推移の可視化（6項目、アイコン付き）＋CTA。非対称2カラムスパンのBento Grid配置とし、各カードはホバー時にスポットライト効果＋3Dチルトが付く（SpotlightCard） |
+| 5 | 機能グリッド | AI自動生成／音声問題対応／自動採点／解説つき／受験履歴／スコア推移の可視化（6項目、アイコン付き）＋CTA。非対称2カラムスパンのBento Grid配置とし、各カードはホバー時にスポットライト効果＋3Dチルトが付く（SpotlightCard）。GSAP `ScrollTrigger.batch()`による同期スタガー演出（`prefers-reduced-motion`時は個別`RevealOnScroll`にフォールバック） |
 | 6 | 2カラムCTA | 「使い方はシンプル」（使い方を見る）／「お困りですか？」（よくある質問を見る） |
 | 7 | CTAバンド | 「今すぐ無料でIELTS対策を始めよう」＋CTA2種 |
-| 8 | 使い方（3ステップ） | STEP1 トピックと難易度を選ぶ／STEP2 AIが問題を生成／STEP3 回答して結果を確認 |
-| 9 | Powered byマーキー | 採用技術（Next.js等）のロゴを横スクロールでアピールする帯。`prefers-reduced-motion`時は静的な折り返し表示に切り替える |
-| 10 | フッター | タグライン「解いた分だけ、新しい問題に。」＋ロゴ＋SNSアイコン＋コピーライト＋[プライバシーポリシー（S-08）](./S-08_プライバシーポリシー画面.md)・[利用規約（S-09）](./S-09_利用規約画面.md)へのリンク |
+| 8 | 使い方（3ステップ） | STEP1 トピックと難易度を選ぶ／STEP2 AIが問題を生成／STEP3 回答して結果を確認。各カード上部にGeist Monoの数字ウォーターマーク（01/02/03）を配置し、ヒーローのバンド数字と視覚的に呼応させる |
+| 9 | Powered byマーキー | 採用技術（Next.js、React、TypeScript、Tailwind CSS、Three.js、GSAP、OpenAI、Vercel）のロゴを横スクロールでアピールする帯。`prefers-reduced-motion`時は静的な折り返し表示に切り替える |
+| 10 | フッター | タグライン「解いた分だけ、新しい問題に。」＋ヒーローのバンド階段を想起させる9本の昇順バー＋ロゴ＋コピーライト＋[プライバシーポリシー（S-08）](./S-08_プライバシーポリシー画面.md)・[利用規約（S-09）](./S-09_利用規約画面.md)へのリンク |
 
 ヘッダーの「機能／使い方／よくある質問」ナビリンクおよびフッターのサイト内リンク集・ニュースレター登録は、リンク先ページが存在しない段階では実体のないUIになるため、Phase 1では設置しない方針とした（各セクションへのCTAボタンでS-02への導線のみを提供する）。一方でフッターのプライバシーポリシー・利用規約リンクは、[#00008](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00008_プライバシーポリシー利用規約画面の追加.md)でS-08/S-09の機能仕様・本文案が確定済みのため、実装時は実際のリンク先として設置する。
 
-上記2・5・9のビジュアル演出は[#00066](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00066_TOPページビジュアル演出のモダン化.md)で追加した。その後[#00068](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00068_TOPページHero演出の視認性改善.md)で、ヒーロー背景のDotField配色・GradientMeshの不透明度・CTAボタンのhover表現を、本文の可読性を優先する方向に調整している。
+上記2・5・9のビジュアル演出は[#00066](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00066_TOPページビジュアル演出のモダン化.md)で追加し、[#00068](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00068_TOPページHero演出の視認性改善.md)で視認性を調整した後、[#00074](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00074_TOPページの3Dインタラクティブ化全面刷新.md)で「追加npm依存ゼロ・自前実装」方針を撤廃し、three.js（React Three Fiber）・GSAP等の実践的なライブラリを用いた本格的な3D/インタラクティブ表現へ全面刷新した。
 
 ## ワイヤーフレーム（最終デザイン スクリーンショット）
 
@@ -58,7 +70,9 @@
 
 ![S-01 Top画面 フルページスクリーンショット](./images/S-01_Top画面/full.jpg)
 
-モバイル幅（375px）でも横スクロールなしで表示崩れがないことを確認済み。
+> **注**: この画像は#00074（3Dインタラクティブ化全面刷新）以前の状態のままです。実装環境の制約（自動化ブラウザタブがバックグラウンド扱いとなりWebGL/rAFが実行されないため、Band Staircaseの3D描画をこの環境で目視確認できなかった）により、本チケットの対応時点ではスクリーンショットを差し替えていません。通常のブラウザで`npm run dev`を起動し、実機確認の上で更新してください。
+
+モバイル幅（375px）でも横スクロールなしで表示崩れがないことを確認済み（#00066時点。#00074のレイアウト変更差分は同様のTailwindブレークポイント構成を踏襲しているが、実機での再確認を推奨）。
 
 ## 入力項目とバリデーション
 

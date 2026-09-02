@@ -1,11 +1,9 @@
-import { ArrowRight, Sparkles, PencilLine, BarChart3 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { SpotlightCard } from "@/components/reactbits/spotlight-card";
 import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 import { howItWorks } from "@/lib/mock-data";
-
-const icons = [Sparkles, PencilLine, BarChart3];
 
 export function Insights() {
   return (
@@ -21,7 +19,6 @@ export function Insights() {
 
       <div className="mt-12 grid gap-6 md:grid-cols-3">
         {howItWorks.map((step, i) => {
-          const Icon = icons[i];
           const isLast = i === howItWorks.length - 1;
           return (
             <RevealOnScroll key={step.title} delay={i * 120} className="relative">
@@ -30,8 +27,10 @@ export function Insights() {
                 spotlightColor="rgba(15, 23, 42, 0.06)"
               >
                 <Card className="overflow-hidden border-none shadow-sm transition-shadow duration-200 hover:shadow-lg">
-                  <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-brand-navy/10 to-brand-orange/30">
-                    <Icon className="size-10 text-brand-navy/40" />
+                  <div className="flex aspect-video items-center justify-center bg-brand-navy">
+                    <span className="font-mono text-5xl font-bold text-white/15">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                   </div>
                   <CardContent className="p-5">
                     <Badge className="bg-brand-lavender text-brand-navy">

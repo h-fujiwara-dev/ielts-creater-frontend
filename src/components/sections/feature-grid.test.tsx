@@ -5,6 +5,12 @@ import { FeatureGrid } from "@/components/sections/feature-grid";
 import { featureGrid } from "@/lib/mock-data";
 
 describe("FeatureGrid (S-01)", () => {
+  it("renders the static RevealOnScroll grid under prefers-reduced-motion (test default), not the GSAP-driven grid", () => {
+    const { container } = render(<FeatureGrid />);
+
+    expect(container.querySelector("[data-feature-card]")).not.toBeInTheDocument();
+  });
+
   it("renders one card per mock feature", () => {
     render(<FeatureGrid />);
 

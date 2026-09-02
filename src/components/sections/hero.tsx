@@ -1,27 +1,28 @@
 import { Sparkles } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GuestSignInButton } from "@/components/auth/guest-sign-in-button";
 import { MagneticButton } from "@/components/motion/magnetic-button";
 import { BlurText } from "@/components/reactbits/blur-text";
-import { DotField } from "@/components/reactbits/dot-field";
-import { GradientMesh } from "@/components/reactbits/gradient-mesh";
+import { HeroScene } from "@/components/three/hero-scene";
+
+const SECONDARY_CTA_CLASSNAME =
+  "cursor-pointer rounded-full border border-white/25 bg-white/5 px-6 text-white shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-white/40 hover:bg-white/10 hover:shadow-md";
 
 export function Hero() {
   return (
-    <section className="relative isolate overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <GradientMesh />
-        <DotField />
-      </div>
-
+    <section className="relative isolate overflow-hidden bg-brand-navy">
+      <span
+        id="hero-top-sentinel"
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 block h-px"
+      />
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:grid-cols-2 md:py-24">
         <div className="motion-reduce:animate-none animate-in fade-in slide-in-from-bottom-4 duration-700">
           <p className="text-sm font-bold tracking-wide text-brand-orange">
             AIが、あなた専用のIELTS問題をつくる。
           </p>
-          <h1 className="mt-3 flex flex-col text-4xl leading-tight font-extrabold text-brand-navy md:text-5xl">
+          <h1 className="mt-3 flex flex-col text-4xl leading-tight font-extrabold text-white md:text-5xl">
             <BlurText
               text="解いた分だけ、"
               animateBy="characters"
@@ -33,7 +34,7 @@ export function Hero() {
               delay={35}
             />
           </h1>
-          <p className="mt-5 max-w-md text-base text-brand-navy/70">
+          <p className="mt-5 max-w-md text-base text-white/70">
             トピックと難易度を選ぶだけ。Reading・Listeningの練習問題をAIが自動生成し、自動採点・解説・学習履歴の記録までワンストップで。
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -42,7 +43,7 @@ export function Hero() {
                 size="lg"
                 render={<Link href="/login?step=signup" />}
                 nativeButton={false}
-                className="cursor-pointer rounded-full bg-brand-navy px-6 text-white shadow-sm transition-all duration-200 hover:bg-brand-navy-light hover:shadow-md"
+                className="cursor-pointer rounded-full bg-white px-6 text-brand-navy shadow-sm transition-all duration-200 hover:bg-brand-cream hover:shadow-md"
               >
                 無料ではじめる
               </Button>
@@ -52,47 +53,31 @@ export function Hero() {
               size="lg"
               render={<Link href="/login" />}
               nativeButton={false}
-              className="cursor-pointer rounded-full border-brand-navy/20 bg-white px-6 text-brand-navy shadow-sm transition-all duration-200 hover:border-brand-navy/40 hover:bg-brand-lavender hover:shadow-md"
+              className={SECONDARY_CTA_CLASSNAME}
             >
               ログイン
             </Button>
-            <GuestSignInButton className="cursor-pointer rounded-full border-brand-navy/20 bg-white px-6 text-brand-navy shadow-sm transition-all duration-200 hover:border-brand-navy/40 hover:bg-brand-lavender hover:shadow-md" />
+            <GuestSignInButton className={SECONDARY_CTA_CLASSNAME} />
           </div>
-          <p className="mt-2 text-xs text-brand-navy/50">
+          <p className="mt-2 text-xs text-white/50">
             ゲストは登録不要ですぐに試せます（生成回数に上限あり、データは約24時間で自動削除されます）
           </p>
         </div>
 
         <div className="motion-reduce:animate-none relative animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:150ms]">
-          <div className="relative aspect-4/3 overflow-hidden rounded-3xl shadow-xl shadow-brand-navy/10">
-            <Image
-              src="/images/hero-study.jpg"
-              alt="ヘッドホンをつけてノートPCで学習する人物"
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/50 via-brand-navy/0 to-brand-navy/0" />
-            <a
-              href="https://unsplash.com/@sickhews?utm_source=ielts-creator&utm_medium=referral"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute right-3 bottom-3 rounded-full bg-black/40 px-2.5 py-1 text-[10px] text-white/90 backdrop-blur-sm transition-colors duration-200 hover:bg-black/60"
-            >
-              Photo by Wes Hicks on Unsplash
-            </a>
+          <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/10 bg-brand-navy-light shadow-2xl shadow-black/40 md:aspect-4/3">
+            <HeroScene />
           </div>
 
-          <div className="absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl border border-brand-navy/5 bg-white px-4 py-3 shadow-lg shadow-brand-navy/10">
+          <div className="absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl border border-white/10 bg-brand-navy/90 px-4 py-3 shadow-lg shadow-black/30 backdrop-blur-sm">
             <span className="flex size-9 items-center justify-center rounded-full bg-brand-orange/15 text-brand-orange">
               <Sparkles className="size-4" />
             </span>
             <div>
-              <p className="text-xs font-semibold text-brand-navy">
+              <p className="text-xs font-semibold text-white">
                 Reading問題を生成中…
               </p>
-              <p className="text-[11px] text-brand-navy/50">残り約8秒</p>
+              <p className="text-[11px] text-white/50">残り約8秒</p>
             </div>
           </div>
         </div>

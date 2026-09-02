@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import {
   BarChart3,
   CheckCircle2,
@@ -10,6 +13,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SpotlightCard } from "@/components/reactbits/spotlight-card";
 import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { featureGrid } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
@@ -19,9 +24,110 @@ const icons = [Sparkles, Volume2, CheckCircle2, MessageSquareText, History, BarC
 // asymmetric bento layout; the remaining four stay single-column.
 const bentoSpan = ["lg:col-span-2", "", "", "", "", "lg:col-span-2"];
 
-export function FeatureGrid() {
+function FeatureCard({
+  title,
+  description,
+  Icon,
+  isLarge,
+}: {
+  title: string;
+  description: string;
+  Icon: (typeof icons)[number];
+  isLarge: boolean;
+}) {
   return (
-    <section id="features" className="bg-brand-lavender py-20">
+    <SpotlightCard
+      tilt
+      className={cn(
+        "group flex h-full flex-col items-start gap-3 rounded-2xl bg-brand-cream ring-1 ring-brand-navy/10 transition-colors duration-200",
+        isLarge ? "p-6" : "p-3",
+      )}
+      spotlightColor="rgba(249, 115, 22, 0.10)"
+    >
+      <div
+        className={cn(
+          "flex items-center justify-center rounded-xl bg-brand-lavender text-brand-navy shadow-sm transition-shadow duration-200 group-hover:shadow-md",
+          isLarge ? "size-14" : "size-11",
+        )}
+      >
+        <Icon className={isLarge ? "size-6" : "size-5"} />
+      </div>
+      <h3 className={cn("font-semibold text-brand-navy", isLarge && "text-lg")}>{title}</h3>
+      <p className="text-sm text-brand-navy/70">{description}</p>
+    </SpotlightCard>
+  );
+}
+
+// Synchronized GSAP stagger reveal for the bento grid, replacing the
+// per-card RevealOnScroll used everywhere else — a single ScrollTrigger.batch()
+// firing once feels more deliberate than six independent IntersectionObservers.
+// Skipped entirely under prefers-reduced-motion (see the sibling static grid
+// below), so gsap/ScrollTrigger never even run their effect in that case.
+function AnimatedGrid() {
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const ctx = gsap.context(() => {
+      const cards = Array.from(grid.querySelectorAll<HTMLElement>("[data-feature-card]"));
+      gsap.set(cards, { opacity: 0, y: 24 });
+      ScrollTrigger.batch(cards, {
+        start: "top 88%",
+        once: true,
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: "power3.out",
+          }),
+      });
+    }, grid);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div ref={gridRef} className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {featureGrid.map((f, i) => (
+        <div key={f.title} data-feature-card className={bentoSpan[i]}>
+          <FeatureCard
+            title={f.title}
+            description={f.description}
+            Icon={icons[i]}
+            isLarge={bentoSpan[i] !== ""}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StaticGrid() {
+  return (
+    <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {featureGrid.map((f, i) => (
+        <RevealOnScroll key={f.title} delay={i * 80} className={bentoSpan[i]}>
+          <FeatureCard
+            title={f.title}
+            description={f.description}
+            Icon={icons[i]}
+            isLarge={bentoSpan[i] !== ""}
+          />
+        </RevealOnScroll>
+      ))}
+    </div>
+  );
+}
+
+export function FeatureGrid() {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  return (
+    <section id="features" className="bg-brand-cream py-20">
       <div className="mx-auto max-w-6xl px-6">
         <RevealOnScroll className="text-center">
           <p className="text-sm font-bold tracking-wide text-brand-orange">
@@ -32,42 +138,7 @@ export function FeatureGrid() {
           </h2>
         </RevealOnScroll>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featureGrid.map((f, i) => {
-            const Icon = icons[i];
-            const isLarge = bentoSpan[i] !== "";
-            return (
-              <RevealOnScroll key={f.title} delay={i * 80} className={bentoSpan[i]}>
-                <SpotlightCard
-                  tilt
-                  className={cn(
-                    "group flex h-full flex-col items-start gap-3 rounded-2xl transition-colors duration-200",
-                    isLarge ? "p-6" : "p-3",
-                  )}
-                  spotlightColor="rgba(249, 115, 22, 0.10)"
-                >
-                  <div
-                    className={cn(
-                      "flex items-center justify-center rounded-xl bg-white text-brand-navy shadow-sm transition-shadow duration-200 group-hover:shadow-md",
-                      isLarge ? "size-14" : "size-11",
-                    )}
-                  >
-                    <Icon className={isLarge ? "size-6" : "size-5"} />
-                  </div>
-                  <h3
-                    className={cn(
-                      "font-semibold text-brand-navy",
-                      isLarge && "text-lg",
-                    )}
-                  >
-                    {f.title}
-                  </h3>
-                  <p className="text-sm text-brand-navy/70">{f.description}</p>
-                </SpotlightCard>
-              </RevealOnScroll>
-            );
-          })}
-        </div>
+        {prefersReducedMotion ? <StaticGrid /> : <AnimatedGrid />}
 
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           <Button

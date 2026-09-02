@@ -15,6 +15,13 @@ describe("Hero (S-01)", () => {
     expect(screen.getByRole("button", { name: "ログイン" })).toBeInTheDocument();
   });
 
+  it("renders the static HeroScene fallback under prefers-reduced-motion (test default), not a canvas", () => {
+    const { container } = render(<Hero />);
+
+    expect(container.querySelector("canvas")).not.toBeInTheDocument();
+    expect(screen.getByText("9")).toBeInTheDocument();
+  });
+
   it("links the CTAs to /login", () => {
     render(<Hero />);
 

@@ -21,6 +21,21 @@ export function SiteFooter() {
             <p className="mt-4 text-sm font-medium text-white/70">
               解いた分だけ、新しい問題に。
             </p>
+            <div
+              aria-hidden="true"
+              className="mt-5 flex h-6 items-end gap-1"
+            >
+              {Array.from({ length: 9 }, (_, i) => {
+                const isFocus = i === 8;
+                return (
+                  <span
+                    key={i}
+                    className={`w-1.5 rounded-t-sm ${isFocus ? "bg-brand-orange" : "bg-white/15"}`}
+                    style={{ height: `${30 + i * 8}%` }}
+                  />
+                );
+              })}
+            </div>
           </div>
 
           <div>
