@@ -41,7 +41,7 @@ IELTSのバンドスコア（1〜8。8はこのプロダクトが掲げる現実
 - バンド1〜7は`meshPhysicalMaterial`（navy寄りガラス）、バンド8のみdrei `MeshTransmissionMaterial`（ブランドオレンジ、高品質ガラスシェーダー）+ 専用`pointLight`で発光させ、到達目標を視覚的に一点集中させる
 - カーソル追従パララックス（タッチデバイスでは無効化）、GSAP ScrollTrigger によるスクロール連動ビルドアップ、`Float`による控えめなアイドルアニメーションを実装
 - `prefers-reduced-motion`またはWebGL2非対応環境では、3DシーンのJSチャンク自体をロードせず、静的SVGの8本バー（`HeroSceneFallback`）にフォールバックする
-- 実行中にWebGLコンテキストロスト（`webglcontextlost`）が発生した場合も同じ静的フォールバックに切り替える。開発中、`@react-three/postprocessing`（`EffectComposer`+`Bloom`）を含む構成でdevモード（React Strict Modeの二重マウント）実機テスト時にコンテキストロストが再現したため、GPU負荷を抑える目的でBloom/EffectComposerは撤去した
+- 実行中にWebGLコンテキストロスト（`webglcontextlost`）が発生した場合も同じ静的フォールバックに切り替える保険を実装。実機（`npm run dev`）検証で、React Strict Modeのdev専用二重マウント（mount→unmount→remount）によりHeroの`<Canvas>`が確実にコンテキストロストする不具合を確認したため、`next.config.ts`で`reactStrictMode: false`に設定して解消した（本番ビルドではStrict Modeの二重invoke自体が発生しないため、この設定変更による本番挙動への影響はない）。あわせてGPU負荷軽減のため`@react-three/postprocessing`（`EffectComposer`+`Bloom`）は撤去した
 - 実装は`src/components/three/`配下（`band-score-scene.tsx` / `band-score-slab.tsx` / `hero-scene.tsx` / `hero-scene-fallback.tsx`）
 
 ## 画面構成要素
@@ -71,7 +71,7 @@ IELTSのバンドスコア（1〜8。8はこのプロダクトが掲げる現実
 
 ![S-01 Top画面 フルページスクリーンショット](./images/S-01_Top画面/full.jpg)
 
-> **注**: この画像は#00074（3Dインタラクティブ化全面刷新）以前の状態のままです。実装環境の制約（自動化ブラウザタブがバックグラウンド扱いとなりWebGL/rAFが実行されないため、Band Staircaseの3D描画をこの環境で目視確認できなかった）により、本チケットの対応時点ではスクリーンショットを差し替えていません。通常のブラウザで`npm run dev`を起動し、実機確認の上で更新してください。
+> **注**: この画像は#00074（3Dインタラクティブ化全面刷新）以前の状態のままです。Band Staircaseの3D描画自体はPlaywrightによる実機相当の検証（`document.visibilityState === "visible"`な状態でのレンダリング確認）で正常動作を確認済みですが、フルページスクリーンショットの自動取得（IntersectionObserver/ScrollTriggerが素通しのスクロールでは発火しづらい）技術的制約により、この画像アセット自体はまだ差し替えていません。次回の目視確認時に更新してください。
 
 モバイル幅（375px）でも横スクロールなしで表示崩れがないことを確認済み（#00066時点。#00074のレイアウト変更差分は同様のTailwindブレークポイント構成を踏襲しているが、実機での再確認を推奨）。
 

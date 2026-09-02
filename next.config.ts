@@ -8,6 +8,13 @@ import { BACKEND_API_ORIGIN as backendApiOrigin } from "./src/lib/env/backend-ap
 // lib/api/client.ts側で行うため、プロキシ経由のリクエスト構成自体は変わらない。
 
 const nextConfig: NextConfig = {
+  // React Strict Mode's dev-only double-invoke (mount→unmount→remount) was
+  // reliably causing the Hero's R3F <Canvas> (src/components/three/) to lose
+  // its WebGL context on the remount, leaving a broken canvas (#00074). This
+  // only affects `next dev` — production builds never double-invoke effects
+  // regardless of this flag, so disabling it has no production behavior
+  // change; it only turns off Strict Mode's dev-time extra bug-detection pass.
+  reactStrictMode: false,
   // ielts-creater-frontend is nested inside the ielts-creater workspace, which
   // has its own package-lock.json for root tooling — pin Turbopack's root here
   // so it doesn't infer the parent directory as the project root.
