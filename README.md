@@ -1,13 +1,13 @@
 # IELTS Creator — Frontend
 
-[IELTS Creator](https://github.com/h-fujiwara-dev/ielts-creater)（AIによるIELTS練習問題作成アプリ）のフロントエンド。Next.js（App Router）+ TypeScriptで実装。
+[IELTS Creator](https://github.com/h-fujiwara-dev/ielts-creater)（AIによるIELTS練習問題作成アプリ）のフロントエンド。Next.js（App Router）+ TypeScriptで実装。UIはshadcn/ui（Base UIプリセット）+ Tailwind CSSで構成する。
 
 プロジェクト全体の概要・業務/システム要件・アーキテクチャは[ielts-createrリポジトリ（ランディング）](https://github.com/h-fujiwara-dev/ielts-creater)を参照してください。バックエンドは[ielts-creater-backend](https://github.com/h-fujiwara-dev/ielts-creater-backend)、インフラは[ielts-creater-infra](https://github.com/h-fujiwara-dev/ielts-creater-infra)にあります。
 
 ## ドキュメント
 
 - [docs/画面一覧.md](./docs/画面一覧.md) — 画面一覧とディレクトリ構成
-- [docs/画面設計書/](./docs/画面設計書/) — 画面ごとの詳細仕様（S-01〜S-06）。S-01にNextAuth.js × Cognito連携方針を含む
+- [docs/画面設計書/](./docs/画面設計書/) — 画面ごとの詳細仕様（S-01〜S-09）。NextAuth.js × Cognito連携方針はS-02に記載
 
 ## ローカル開発
 
@@ -90,3 +90,13 @@ npm run test:e2e
 - `e2e/history.spec.ts`: 履歴一覧（S-06）からの再受験・結果再確認
 - `e2e/signup.spec.ts`: 新規サインアップの入口確認、および[#00046](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00046_Cognito新規サインアップ時のdisplayName未設定バグ修正.md)で修正済みのdisplayNameフォールバック（`name`属性未設定時にemailのローカル部を使う）の検証
 - `e2e/static-pages.spec.ts`: Top / プライバシーポリシー / 利用規約の表示・遷移確認
+
+## 単体テスト（Vitest）
+
+[#00031](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00031_画面（S-01〜S-09）単体テストの導入.md)で導入し、[#00059](https://github.com/h-fujiwara-dev/ielts-creater/blob/main/tickets/00059_単体テストの拡充とバグ修正.md)でカバレッジを拡充した。画面コンポーネント（S-01〜S-09）・認証まわり・API/lib層・設問フォーマット等を対象に、`vitest.config.mts`（jsdom環境）で実行する。CIでは全PRで`npm test`を実行する。
+
+```bash
+npm test           # 実行
+npm run test:watch # watchモード
+npm run test:coverage # カバレッジ計測（@vitest/coverage-v8）
+```
